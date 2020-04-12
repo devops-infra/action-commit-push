@@ -1,0 +1,25 @@
+name: "GitHub Action template"
+author: "Krzysztof Szyper <biotyk@mail.com>"
+description: "Template repository for GitHub Actions."
+inputs:
+  fail_on_error:
+    description: "Whether error in main function should fail the whole Action."
+    required: false
+    default: "false"
+  github_token:
+    description: "Personal Access Token for GitHub. If push_changes set to true."
+    required: false
+    default: ""
+  push_changes:
+    description: "Whether changes should be pushed back to the current branch. Excludes fail_on_error."
+    required: false
+    default: "false"
+outputs:
+  files_changed:
+    description: "List of updated files."
+runs:
+  using: "docker"
+  image: "Dockerfile"
+branding:
+  color: "white"
+  icon: "wind"
