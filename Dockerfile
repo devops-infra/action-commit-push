@@ -13,15 +13,15 @@ LABEL \
   com.github.actions.name="GitHub Action template" \
   org.label-schema.build-date="${BUILD_DATE}" \
   org.label-schema.description="Template repository for GitHub Actions." \
-  org.label-schema.name="template-action" \
+  org.label-schema.name="action-commit-push" \
   org.label-schema.schema-version="1.0"	\
   org.label-schema.url="https://christophshyper.github.io/" \
   org.label-schema.vcs-ref="${VCS_REF}" \
-  org.label-schema.vcs-url="https://github.com/ChristophShyper/template-action" \
+  org.label-schema.vcs-url="https://github.com/ChristophShyper/action-commit-push" \
   org.label-schema.vendor="Krzysztof Szyper <biotyk@mail.com>" \
   org.label-schema.version="${VERSION}" \
   maintainer="Krzysztof Szyper <biotyk@mail.com>" \
-  repository="https://github.com/ChristophShyper/template-action"
+  repository="https://github.com/ChristophShyper/action-commit-push"
 
 # Copy all needed files
 COPY entrypoint.sh /
