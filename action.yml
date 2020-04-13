@@ -1,25 +1,29 @@
-name: "GitHub Action template"
+name: "GitHub Action for committing changes to repository"
 author: "Krzysztof Szyper <biotyk@mail.com>"
-description: "Template repository for GitHub Actions."
+description: "GitHub Action that will create a new commit and push it back to the repository."
 inputs:
-  fail_on_error:
-    description: "Whether error in main function should fail the whole Action."
-    required: false
-    default: "false"
   github_token:
-    description: "Personal Access Token for GitHub. If push_changes set to true."
-    required: false
+    description: "Personal Access Token for GitHub for pushing the code."
+    required: true
     default: ""
-  push_changes:
-    description: "Whether changes should be pushed back to the current branch. Excludes fail_on_error."
+  commit_prefix:
+    description: "Prefix added to commit message."
+    required: false
+    default: "[AUTO-COMMIT]"
+  branch_name:
+    description: "Name of a new branch to push the code into."
+    required: false
+    default: "auto-branch"
+  add_timestamp:
+    description: "Whether to add timestamp to a new branch name. Used when branch_name is set."
     required: false
     default: "false"
 outputs:
   files_changed:
-    description: "List of updated files."
+    description: "List of changed files."
 runs:
   using: "docker"
-  image: "Dockerfile"
+  image: "docker://christophshyper/action-commit-push:latest"
 branding:
   color: "white"
   icon: "wind"

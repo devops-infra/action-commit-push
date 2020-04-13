@@ -2,54 +2,57 @@
 
 set -e
 
-# github_token required
-if [[ -z "${INPUT_GITHUB_TOKEN}" && ${INPUT_PUSH_CHANGES} == "true" ]]; then
-  MESSAGE='Missing variable "github_token: ${{ secrets.GITHUB_TOKEN }}".'
+# Required github_token
+if [[ -z "${INPUT_GITHUB_TOKEN}" ]]; then
+  MESSAGE='Missing input "github_token: ${{ secrets.GITHUB_TOKEN }}".'
   echo "[ERROR] ${MESSAGE}"
   exit 1
 fi
 
-# Run main action
-echo "GitHub Action template"
-RET_CODE=$?
+# Set default prefix for commit
+if [[ -z "${INPUT_COMMIT_PREFIX}" ]]; then
+  INPUT_COMMIT_PREFIX="[AUTO-COMMIT]"
+fi
 
-# List of changed files
-FILES_CHANGED=$(git diff --name-only)
-
-# Get the name of the current branch
-BRANCH=${GITHUB_REF/refs\/heads\//}
-
-# Info about formatted files
-if [[ ! -z ${FILES_CHANGED} ]]; then
+# Get changed files
+FILES_CHANGED=$(git diff --staged --name-status)
+if [[ -n ${FILES_CHANGED} ]]; then
   echo " "
-  echo "[INFO] Updated files:"
+  echo "[INFO] Files changed:"
   for FILE in ${FILES_CHANGED}; do
-    echo "- ${FILE}"
+    echo "${FILE}"
   done
   echo " "
 else
   echo " "
-  echo "[INFO] No files updated."
+  echo "[INFO] No files changed."
   echo " "
+fi
+
+# Set branch name
+BRANCH="${GITHUB_REF/refs\/heads\//}"
+if [[ -z "${INPUT_BRANCH_NAME}" ]]; then
+  BRANCH="${INPUT_BRANCH_NAME}"
+  git checkout -b "${BRANCH}"
+  # add timestamp to branch name
+  if [[ "${INPUT_ADD_TIMESTAMP}" == "true" ]]; then
+    TIMESTAMP=$(date -u +"%Y-%m-%dT%H-%M-%SZ")
+    BRANCH="${BRANCH}-${TIMESTAMP}"
+  fi
 fi
 
 # Create auto commit
-if [[ ${INPUT_PUSH_CHANGES} == "true" && ! -z ${FILES_CHANGED} ]]; then
-  # Create auto commit
-  echo " "
-  REPO_URL="https://${GITHUB_ACTOR}:${INPUT_GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-  git config --global user.name ${GITHUB_ACTOR}
-  git config --global user.email ${GITHUB_ACTOR}@users.noreply.github.com
-  git commit -am "[AUTO][GitHub Action template] Updated files" -m "${FILES_CHANGED}"
-  git push ${REPO_URL} HEAD:${BRANCH}
-  echo " "
-  echo "[INFO] No errors found."
-  echo " "
-  exit 0
+if [[ -z ${FILES_CHANGED} ]]; then
+  git config --global user.name "${GITHUB_ACTOR}"
+  git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+  git add -A
+  git commit -am "${INPUT_COMMIT_PREFIX} Files changed:" -m "${FILES_CHANGED}" --allow-empty
+  git push --set-upstream origin "${BRANCH}"
 fi
 
-# Fail if needed
-if [[ ${INPUT_FAIL_ON_ERROR} == "true" && ${RET_CODE} != "0" ]]; then
+# Finish
+echo "::set-output name=foobar::${INPUT_BAZ}"
+if [[ ${RET_CODE} != "0" ]]; then
   echo " "
   echo "[ERROR] Check log for errors."
   echo " "
