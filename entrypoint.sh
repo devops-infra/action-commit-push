@@ -19,8 +19,9 @@ if [[ -z "${INPUT_GITHUB_TOKEN}" ]]; then
 fi
 
 # Get changed files
-FILES_CHANGED=$(git diff --name-status)
-FILES_CHANGED="${FILES_CHANGED}\n$(git diff --staged --name-status)"
+FILES_MODIFIED=$(git diff --name-status)
+FILES_ADDED=$(git diff --staged --name-status)
+FILES_CHANGED=$(echo -e "${FILES_MODIFIED}\n${FILES_ADDED}")
 if [[ -n ${FILES_CHANGED} ]]; then
   echo " "
   echo -e "[INFO] Files changed:\n${FILES_CHANGED}"
