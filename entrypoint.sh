@@ -59,7 +59,8 @@ if [[ -n ${FILES_CHANGED} ]]; then
   git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
   git add -A
   git commit -am "${INPUT_COMMIT_PREFIX} Files changed:" -m "${FILES_CHANGED}" --allow-empty
-  git push --set-upstream origin "${BRANCH}"
+  git push -u origin "${BRANCH}"
+  git checkout
 fi
 
 # Finish
