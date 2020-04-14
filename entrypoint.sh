@@ -60,11 +60,11 @@ if [[ -n ${FILES_CHANGED} ]]; then
   git add -A
   git commit -am "${INPUT_COMMIT_PREFIX} Files changed:" -m "${FILES_CHANGED}" --allow-empty
   git push -u origin "${BRANCH}"
-  git checkout
 fi
 
 # Finish
 echo "::set-output name=files_changed::${FILES_CHANGED}"
+echo "::set-output name=branch_name::${BRANCH}"
 if [[ ${RET_CODE} != "0" ]]; then
   echo " "
   echo "[ERROR] Check log for errors."

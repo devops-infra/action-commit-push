@@ -45,7 +45,7 @@ add_timestamp | No | `false` | Whether to add the timestamp to a new branch name
 Outputs | Description
 :--- | :---
 files_changed | List of changed files. As returned by `git diff --staged --name-status`.
-
+branch_name | Name of the branch code was pushed into.
 
 ## Examples
 
