@@ -18,11 +18,6 @@ if [[ -z "${INPUT_GITHUB_TOKEN}" ]]; then
   exit 1
 fi
 
-# Set default prefix for commit
-if [[ -z "${INPUT_COMMIT_PREFIX}" ]]; then
-  INPUT_COMMIT_PREFIX="[AUTO-COMMIT]"
-fi
-
 # Get changed files
 FILES_CHANGED=$(git diff --name-status)
 FILES_CHANGED="${FILES_CHANGED}\n$(git diff --staged --name-status)"
@@ -38,7 +33,7 @@ fi
 
 # Set branch name
 BRANCH="${GITHUB_REF/refs\/heads\//}"
-if [[ -z "${INPUT_BRANCH_NAME}" ]]; then
+if [[ -n "${INPUT_BRANCH_NAME}" ]]; then
   echo "[INFO] Using custom branch: ${INPUT_BRANCH_NAME}"
   BRANCH="${INPUT_BRANCH_NAME}"
 fi
@@ -51,13 +46,13 @@ if [[ "${INPUT_ADD_TIMESTAMP}" == "true" ]]; then
 fi
 
 # Create a new branch
-if [[ -z "${INPUT_BRANCH_NAME}" || "${INPUT_ADD_TIMESTAMP}" == "true" ]]; then
+if [[ -n "${INPUT_BRANCH_NAME}" || "${INPUT_ADD_TIMESTAMP}" == "true" ]]; then
   echo "[INFO] Creating a new branch: ${BRANCH}"
   git checkout -b "${BRANCH}"
 fi
 
 # Create an auto commit
-if [[ -z ${FILES_CHANGED} ]]; then
+if [[ -n ${FILES_CHANGED} ]]; then
   echo "[INFO] Committing changes."
   git config --global user.name "${GITHUB_ACTOR}"
   git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
