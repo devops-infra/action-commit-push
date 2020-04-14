@@ -35,14 +35,12 @@ fi
 # Set branch name
 BRANCH="${GITHUB_REF/refs\/heads\//}"
 if [[ -n "${INPUT_BRANCH_NAME}" && -n ${FILES_CHANGED} ]]; then
-  echo "[INFO] Using custom branch: ${INPUT_BRANCH_NAME}"
   BRANCH="${INPUT_BRANCH_NAME}"
 fi
 
 # Add timestamp to branch name
 if [[ "${INPUT_ADD_TIMESTAMP}" == "true" && -n ${FILES_CHANGED} ]]; then
   TIMESTAMP=$(date -u +"%Y-%m-%dT%H-%M-%SZ")
-  echo "[INFO] Using timestamp: ${TIMESTAMP}"
   BRANCH="${BRANCH}-${TIMESTAMP}"
 fi
 
@@ -54,12 +52,14 @@ fi
 
 # Create an auto commit
 if [[ -n ${FILES_CHANGED} ]]; then
-  echo "[INFO] Committing changes."
+  echo "[INFO] Committing and pushing changes."
   git config --global user.name "${GITHUB_ACTOR}"
   git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
   git add -A
   git commit -am "${INPUT_COMMIT_PREFIX} Files changed:" -m "${FILES_CHANGED}" --allow-empty
   git push -u origin "${BRANCH}"
+  git fetch --update-head-ok
+  git pull
 fi
 
 # Finish
