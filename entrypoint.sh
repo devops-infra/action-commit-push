@@ -18,13 +18,11 @@ if [[ -z "${INPUT_COMMIT_PREFIX}" ]]; then
 fi
 
 # Get changed files
-FILES_CHANGED=$(git diff --staged --name-status)
+FILES_CHANGED=$(git diff --name-status)
+FILES_CHANGED="${FILES_CHANGED}\n$(git diff --staged --name-status)"
 if [[ -n ${FILES_CHANGED} ]]; then
   echo " "
-  echo "[INFO] Files changed:"
-  for FILE in ${FILES_CHANGED}; do
-    echo "${FILE}"
-  done
+  echo -e "[INFO] Files changed:\n${FILES_CHANGED}"
   echo " "
 else
   echo " "
