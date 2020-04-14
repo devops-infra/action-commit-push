@@ -5,6 +5,12 @@ set -e
 # Return code
 RET_CODE=0
 
+echo "Inputs:"
+echo "commit_prefix: ${INPUT_COMMIT_PREFIX}"
+echo "branch_name:   ${INPUT_BRANCH_NAME}"
+echo "add_timestamp: ${INPUT_ADD_TIMESTAMP}"
+echo " "
+
 # Required github_token
 if [[ -z "${INPUT_GITHUB_TOKEN}" ]]; then
   MESSAGE='Missing input "github_token: ${{ secrets.GITHUB_TOKEN }}".'
@@ -52,7 +58,7 @@ fi
 
 # Create an auto commit
 if [[ -z ${FILES_CHANGED} ]]; then
-  git checkout -b "${BRANCH}"
+  echo "[INFO] Committing changes."
   git config --global user.name "${GITHUB_ACTOR}"
   git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
   git add -A
