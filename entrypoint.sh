@@ -47,8 +47,8 @@ fi
 # Create a new branch
 if [[ (-n "${INPUT_BRANCH_NAME}" || "${INPUT_ADD_TIMESTAMP}" == "true") && -n ${FILES_CHANGED} ]]; then
   echo "[INFO] Creating a new branch: ${BRANCH}"
-  git checkout -b "${BRANCH}"
-  git reset --hard "origin/${BRANCH}"
+  git checkout -b "${BRANCH}" --track "origin/${GITHUB_REF/refs\/heads\//}"
+#  git reset --hard "origin/${BRANCH}"
 fi
 
 # Create an auto commit
