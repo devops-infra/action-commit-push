@@ -48,6 +48,7 @@ fi
 if [[ (-n "${INPUT_BRANCH_NAME}" || "${INPUT_ADD_TIMESTAMP}" == "true") && -n ${FILES_CHANGED} ]]; then
   echo "[INFO] Creating a new branch: ${BRANCH}"
   git checkout -b "${BRANCH}"
+  git reset --hard "origin/${BRANCH}"
 fi
 
 # Create an auto commit
@@ -58,7 +59,6 @@ if [[ -n ${FILES_CHANGED} ]]; then
   git add -A
   git commit -am "${INPUT_COMMIT_PREFIX} Files changed:" -m "${FILES_CHANGED}" --allow-empty
   git push -u origin "${BRANCH}"
-  git fetch --update-head-ok --prune
 fi
 
 # Finish
