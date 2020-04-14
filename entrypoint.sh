@@ -34,20 +34,20 @@ fi
 
 # Set branch name
 BRANCH="${GITHUB_REF/refs\/heads\//}"
-if [[ -n "${INPUT_BRANCH_NAME}" ]]; then
+if [[ -n "${INPUT_BRANCH_NAME}" && -n ${FILES_CHANGED} ]]; then
   echo "[INFO] Using custom branch: ${INPUT_BRANCH_NAME}"
   BRANCH="${INPUT_BRANCH_NAME}"
 fi
 
 # Add timestamp to branch name
-if [[ "${INPUT_ADD_TIMESTAMP}" == "true" ]]; then
+if [[ "${INPUT_ADD_TIMESTAMP}" == "true" && -n ${FILES_CHANGED} ]]; then
   TIMESTAMP=$(date -u +"%Y-%m-%dT%H-%M-%SZ")
   echo "[INFO] Using timestamp: ${TIMESTAMP}"
   BRANCH="${BRANCH}-${TIMESTAMP}"
 fi
 
 # Create a new branch
-if [[ -n "${INPUT_BRANCH_NAME}" || "${INPUT_ADD_TIMESTAMP}" == "true" ]]; then
+if [[ (-n "${INPUT_BRANCH_NAME}" || "${INPUT_ADD_TIMESTAMP}" == "true") && -n ${FILES_CHANGED} ]]; then
   echo "[INFO] Creating a new branch: ${BRANCH}"
   git checkout -b "${BRANCH}"
 fi
