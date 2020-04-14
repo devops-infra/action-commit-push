@@ -35,16 +35,24 @@ fi
 # Set branch name
 BRANCH="${GITHUB_REF/refs\/heads\//}"
 if [[ -z "${INPUT_BRANCH_NAME}" ]]; then
+  echo "[INFO] Using custom branch: ${INPUT_BRANCH_NAME}"
   BRANCH="${INPUT_BRANCH_NAME}"
-  git checkout -b "${BRANCH}"
-  # add timestamp to branch name
-  if [[ "${INPUT_ADD_TIMESTAMP}" == "true" ]]; then
-    TIMESTAMP=$(date -u +"%Y-%m-%dT%H-%M-%SZ")
-    BRANCH="${BRANCH}-${TIMESTAMP}"
-  fi
 fi
 
-# Create auto commit
+# Add timestamp to branch name
+if [[ "${INPUT_ADD_TIMESTAMP}" == "true" ]]; then
+  echo "[INFO] Using timestamp: ${TIMESTAMP}"
+  TIMESTAMP=$(date -u +"%Y-%m-%dT%H-%M-%SZ")
+  BRANCH="${BRANCH}/${TIMESTAMP}"
+fi
+
+# Create a new branch
+if [[ -z "${INPUT_BRANCH_NAME}" || "${INPUT_ADD_TIMESTAMP}" == "true" ]]; then
+  echo "[INFO] Creating a new branch: ${BRANCH}"
+  git checkout -b "${BRANCH}"
+fi
+
+# Create an auto commit
 if [[ -z ${FILES_CHANGED} ]]; then
   git config --global user.name "${GITHUB_ACTOR}"
   git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"

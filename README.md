@@ -10,7 +10,7 @@ Can add a custom prefix to commit message by setting `commit_prefix`.
 
 Can create a new branch when `branch_name` is set. Good to combine with `repo-sync/pull-request@v2` action. 
 
-Can add a timestamp to a branch name, when `branch_name` is set and `add_timestamp` is `true`.
+Can add a timestamp to a branch name, when `branch_name` is set and `add_timestamp` is `true`. Will create branch named `${branch_name}/${add_timestamp}`.
 
 
 ## Badge swag
