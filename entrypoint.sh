@@ -2,6 +2,9 @@
 
 set -e
 
+# Return code
+RET_CODE=0
+
 # Required github_token
 if [[ -z "${INPUT_GITHUB_TOKEN}" ]]; then
   MESSAGE='Missing input "github_token: ${{ secrets.GITHUB_TOKEN }}".'
@@ -51,7 +54,7 @@ if [[ -z ${FILES_CHANGED} ]]; then
 fi
 
 # Finish
-echo "::set-output name=foobar::${INPUT_BAZ}"
+echo "::set-output name=files_changed::${FILES_CHANGED}"
 if [[ ${RET_CODE} != "0" ]]; then
   echo " "
   echo "[ERROR] Check log for errors."
