@@ -58,8 +58,7 @@ if [[ -n ${FILES_CHANGED} ]]; then
   git add -A
   git commit -am "${INPUT_COMMIT_PREFIX} Files changed:" -m "${FILES_CHANGED}" --allow-empty
   git push -u origin "${BRANCH}"
-  git fetch --update-head-ok
-  git pull
+  git fetch --update-head-ok --prune
 fi
 
 # Finish
