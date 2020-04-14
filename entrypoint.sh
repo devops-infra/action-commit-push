@@ -41,9 +41,9 @@ fi
 
 # Add timestamp to branch name
 if [[ "${INPUT_ADD_TIMESTAMP}" == "true" ]]; then
-  echo "[INFO] Using timestamp: ${TIMESTAMP}"
   TIMESTAMP=$(date -u +"%Y-%m-%dT%H-%M-%SZ")
-  BRANCH="${BRANCH}/${TIMESTAMP}"
+  echo "[INFO] Using timestamp: ${TIMESTAMP}"
+  BRANCH="${BRANCH}-${TIMESTAMP}"
 fi
 
 # Create a new branch
