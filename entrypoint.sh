@@ -54,8 +54,8 @@ fi
 if [[ -n ${FILES_CHANGED} ]]; then
   echo "[INFO] Committing and pushing changes."
   git remote set-url origin "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}"
-#  git config --global user.name "${GITHUB_ACTOR}"
-#  git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+  git config --global user.name "${GITHUB_ACTOR}"
+  git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
   git add -A
   git commit -am "${INPUT_COMMIT_PREFIX} Files changed:" -m "${FILES_CHANGED}" --allow-empty
   git push origin "${BRANCH}"
