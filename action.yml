@@ -26,6 +26,8 @@ outputs:
 runs:
   using: "docker"
   image: "docker://christophshyper/action-commit-push:latest"
+  env:
+    GITHUB_TOKEN: ${{ inputs.github_token }}
 branding:
   color: "white"
   icon: "wind"
