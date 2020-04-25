@@ -10,12 +10,12 @@ inputs:
     description: "Prefix added to commit message."
     required: false
     default: "[AUTO-COMMIT]"
-  branch_name:
+  target_branch:
     description: "Name of a new branch to push the code into."
     required: false
-    default: "auto-branch"
+    default: ""
   add_timestamp:
-    description: "Whether to add timestamp to a new branch name. Used when branch_name is set."
+    description: "Whether to add timestamp to a new branch name. Used when target_branch is set."
     required: false
     default: "false"
 outputs:
