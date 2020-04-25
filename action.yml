@@ -25,7 +25,7 @@ outputs:
     description: "Name of the branch code was pushed into."
 runs:
   using: docker
-  image: docker://devops-infra/action-commit-push:latest
+  image: docker://christophshyper/action-commit-push:latest
   env:
     GITHUB_TOKEN: ${{ inputs.github_token }}
 branding:
