@@ -1,21 +1,21 @@
-name: "GitHub Action for committing changes to repository"
+name: GitHub Action for committing changes to repository
 author: "Krzysztof Szyper <biotyk@mail.com>"
-description: "GitHub Action that will create a new commit and push it back to the repository."
+description: GitHub Action that will create a new commit and push it back to the repository
 inputs:
   github_token:
-    description: "Personal Access Token for GitHub for pushing the code."
+    description: Personal Access Token for GitHub for pushing the code
     required: true
     default: ""
   commit_prefix:
-    description: "Prefix added to commit message."
+    description: Prefix added to commit message
     required: false
     default: "[AUTO-COMMIT]"
   target_branch:
-    description: "Name of a new branch to push the code into."
+    description: Name of a new branch to push the code into
     required: false
     default: ""
   add_timestamp:
-    description: "Whether to add timestamp to a new branch name. Used when target_branch is set."
+    description: Whether to add timestamp to a new branch name. Used when target_branch is set
     required: false
     default: "false"
 outputs:
@@ -24,10 +24,10 @@ outputs:
   branch_name:
     description: "Name of the branch code was pushed into."
 runs:
-  using: "docker"
-  image: "docker://christophshyper/action-commit-push:latest"
+  using: docker
+  image: docker://devops-infra/action-commit-push:latest
   env:
     GITHUB_TOKEN: ${{ inputs.github_token }}
 branding:
-  color: "white"
-  icon: "wind"
+  color: purple
+  icon: upload-cloud

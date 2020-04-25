@@ -12,18 +12,18 @@ Features:
 
 ## Badge swag
 [
-![GitHub](https://img.shields.io/badge/github-ChristophShyper%2Faction--commit--push-brightgreen.svg?style=flat-square&logo=github)
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/christophshyper/action-commit-push?color=brightgreen&label=Code%20size&style=flat-square&logo=github)
-![GitHub last commit](https://img.shields.io/github/last-commit/christophshyper/action-commit-push?color=brightgreen&label=Last%20commit&style=flat-square&logo=github)
-](https://github.com/christophshyper/action-commit-push "shields.io")
-[![Push to master](https://img.shields.io/github/workflow/status/christophshyper/action-commit-push/Push%20to%20master?color=brightgreen&label=Master%20branch&logo=github&style=flat-square)
-](https://github.com/ChristophShyper/action-commit-push/actions?query=workflow%3A%22Push+to+master%22)
-[![Push to other](https://img.shields.io/github/workflow/status/christophshyper/action-commit-push/Push%20to%20other?color=brightgreen&label=Pull%20requests&logo=github&style=flat-square)
-](https://github.com/ChristophShyper/action-commit-push/actions?query=workflow%3A%22Push+to+other%22)
+![GitHub](https://img.shields.io/badge/github-devops--infra%2Faction--commit--push-brightgreen.svg?style=flat-square&logo=github)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/devops-infra/action-commit-push?color=brightgreen&label=Code%20size&style=flat-square&logo=github)
+![GitHub last commit](https://img.shields.io/github/last-commit/devops-infra/action-commit-push?color=brightgreen&label=Last%20commit&style=flat-square&logo=github)
+](https://github.com/devops-infra/action-commit-push "shields.io")
+[![Push to master](https://img.shields.io/github/workflow/status/devops-infra/action-commit-push/Push%20to%20master?color=brightgreen&label=Master%20branch&logo=github&style=flat-square)
+](https://github.com/devops-infra/action-commit-push/actions?query=workflow%3A%22Push+to+master%22)
+[![Push to other](https://img.shields.io/github/workflow/status/devops-infra/action-commit-push/Push%20to%20other?color=brightgreen&label=Pull%20requests&logo=github&style=flat-square)
+](https://github.com/devops-infra/action-commit-push/actions?query=workflow%3A%22Push+to+other%22)
 <br>
 [
 ![DockerHub](https://img.shields.io/badge/docker-christophshyper%2Faction--commit--push-blue.svg?style=flat-square&logo=docker)
-![Dockerfile size](https://img.shields.io/github/size/christophshyper/action-commit-push/Dockerfile?label=Dockerfile%20size&style=flat-square&logo=docker)
+![Dockerfile size](https://img.shields.io/github/size/devops-infra/action-commit-push/Dockerfile?label=Dockerfile%20size&style=flat-square&logo=docker)
 ![Image size](https://img.shields.io/docker/image-size/christophshyper/action-commit-push/latest?label=Image%20size&style=flat-square&logo=docker)
 ![Docker Pulls](https://img.shields.io/docker/pulls/christophshyper/action-commit-push?color=blue&label=Pulls&logo=docker&style=flat-square)
 ![Docker version](https://img.shields.io/docker/v/christophshyper/action-commit-push?color=blue&label=Version&logo=docker&style=flat-square)
@@ -48,7 +48,7 @@ Input Variable | Required | Default |Description
 github_token | Yes | `""` | Personal Access Token for GitHub for pushing the code.
 commit_prefix | No | `[AUTO-COMMIT]` | Prefix added to commit message.
 target_branch | No | *current branch* | Name of a new branch to push the code into. Creates branch if not existing.
-add_timestamp | No | `false` | Whether to add the timestamp to a new branch name. Used when target_branch is set.
+add_timestamp | No | `false` | Whether to add the timestamp to a new branch name. Used when target_branch is set. Uses format `%Y-%m-%dT%H-%M-%SZ`.
 
 Outputs | Description
 :--- | :---
@@ -72,7 +72,7 @@ jobs:
         run: |
           find . -type f -name "*" -print0 | xargs -0 sed -i "s/foo/bar/g"
       - name: Commit and push changes
-        uses: ChristophShyper/action-commit-push@master
+        uses: devops-infra/action-commit-push@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -92,7 +92,7 @@ jobs:
         run: |
           find . -type f -name "*" -print0 | xargs -0 sed -i "s/foo/bar/g"
       - name: Commit and push changes
-        uses: ChristophShyper/action-commit-push@master
+        uses: devops-infra/action-commit-push@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           commit_prefix: "[AUTO-COMMIT] foo/bar replace"
