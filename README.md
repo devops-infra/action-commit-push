@@ -10,6 +10,7 @@ Features:
 * Can add a timestamp to a branch name, when `target_branch` is set and `add_timestamp` is `true`. Will create a branch named `${branch_name}/${add_timestamp}`. Great for cron-based updates.
 * Good to combine with my other action [devops-infra/action-pull-request](https://github.com/devops-infra/action-pull-request).
 
+
 ## Badge swag
 [
 ![GitHub](https://img.shields.io/badge/github-devops--infra%2Faction--commit--push-brightgreen.svg?style=flat-square&logo=github)
@@ -54,6 +55,7 @@ Outputs | Description
 :--- | :---
 files_changed | List of changed files. As returned by `git diff --staged --name-status`.
 branch_name | Name of the branch code was pushed into.
+
 
 ## Examples
 
