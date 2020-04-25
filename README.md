@@ -4,14 +4,11 @@ GitHub Action that will create a new commit and push it to the repository.
 
 Dockerized as [christophshyper/action-commit-push](https://hub.docker.com/repository/docker/christophshyper/action-commit-push).
 
-An automatic commit is using username of the last person committing to checked-out branch. But `github_token` needs to be set for that person.
-
-Can add a custom prefix to commit message by setting `commit_prefix`.
-
-Can create a new branch when `branch_name` is set. Good to combine with `repo-sync/pull-request@v2` action. 
-
-Can add a timestamp to a branch name, when `branch_name` is set and `add_timestamp` is `true`. Will create branch named `${branch_name}/${add_timestamp}`.
-
+Features:
+* Can add a custom prefix to commit message by setting `commit_prefix`.
+* Can create a new branch when `target_branch` is set.  
+* Can add a timestamp to a branch name, when `target_branch` is set and `add_timestamp` is `true`. Will create a branch named `${branch_name}/${add_timestamp}`. Great for cron-based updates.
+* Good to combine with my other action [devops-infra/action-pull-request](https://github.com/devops-infra/action-pull-request).
 
 ## Badge swag
 [
@@ -35,12 +32,23 @@ Can add a timestamp to a branch name, when `branch_name` is set and `add_timesta
 
 ## Reference
 
+```yaml
+    - name: Run the Action
+      uses: devops-infra/action-commit-push@master
+      with:
+        github_token: "${{ secrets.GITHUB_TOKEN }}"
+        commit_prefix: "[AUTO]"
+        target_branch: update/version
+        add_timestamp: true
+```
+
+
 Input Variable | Required | Default |Description
 :--- | :---: | :---: | :---
 github_token | Yes | `""` | Personal Access Token for GitHub for pushing the code.
 commit_prefix | No | `[AUTO-COMMIT]` | Prefix added to commit message.
-branch_name | No | `auto-branch` | Name of a new branch to push the code into.
-add_timestamp | No | `false` | Whether to add the timestamp to a new branch name. Used when branch_name is set.
+target_branch | No | *current branch* | Name of a new branch to push the code into. Creates branch if not existing.
+add_timestamp | No | `false` | Whether to add the timestamp to a new branch name. Used when target_branch is set.
 
 Outputs | Description
 :--- | :---
@@ -49,7 +57,7 @@ branch_name | Name of the branch code was pushed into.
 
 ## Examples
 
-Commit and push changes to currently checked out branch. Run the Action via GitHub.
+Commit and push changes to currently checked out branch.
 ```yaml
 name: Push changes
 on:
@@ -64,12 +72,12 @@ jobs:
         run: |
           find . -type f -name "*" -print0 | xargs -0 sed -i "s/foo/bar/g"
       - name: Commit and push changes
-        uses: ChristophShyper/action-commit-push:master
+        uses: ChristophShyper/action-commit-push@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-Commit and push changes to a new branch and create pull request using [repo-sync/pull-request](https://github.com/repo-sync/pull-request). Run the Action via DockerHub.
+Commit and push changes to a new branch and create pull request using my other action [devops-infra/action-pull-request](https://github.com/devops-infra/action-pull-request).
 ```yaml
 name: Push changes
 on:
@@ -84,17 +92,14 @@ jobs:
         run: |
           find . -type f -name "*" -print0 | xargs -0 sed -i "s/foo/bar/g"
       - name: Commit and push changes
-        uses: docker://christophshyper/action-commit-push:latest
+        uses: ChristophShyper/action-commit-push@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch_name: enhancement/foo-bar
-          commit_prefix: "[AUTO-COMMIT][foo/bar replace]"
-      - name: Create pull request - other (conditional)
-        uses: repo-sync/pull-request@v2
+          commit_prefix: "[AUTO-COMMIT] foo/bar replace"
+      - name: Create pull request
+        uses: devops-infra/action-pull-request@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          pr_label: "foo-bar"
-          pr_body: "**Automated pull request**<br><br>Replaced foo/bar"
-          pr_title: "${{ github.event.commits[0].message }}"
-          pr_assignee: "${{ github.actor }}"
+          body: "**Automated pull request**<br><br>Replaced foo/bar"
+          title: "${{ github.event.commits[0].message }}"
 ```
