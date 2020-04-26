@@ -1,11 +1,15 @@
-name: GitHub Action for committing changes to repository
-author: "Krzysztof Szyper <biotyk@mail.com>"
+name: GitHub Action for committing changes to a repository
+author: Krzysztof Szyper / ChristophShyper / biotyk@mail.com
 description: GitHub Action that will create a new commit and push it back to the repository
 inputs:
   github_token:
     description: Personal Access Token for GitHub for pushing the code
     required: true
     default: ""
+  add_timestamp:
+    description: Whether to add timestamp to a new branch name
+    required: false
+    default: "false"
   commit_prefix:
     description: Prefix added to commit message
     required: false
@@ -14,15 +18,11 @@ inputs:
     description: Name of a new branch to push the code into
     required: false
     default: ""
-  add_timestamp:
-    description: Whether to add timestamp to a new branch name. Used when target_branch is set
-    required: false
-    default: "false"
 outputs:
   files_changed:
-    description: "List of changed files."
+    description: List of changed files
   branch_name:
-    description: "Name of the branch code was pushed into."
+    description: Name of the branch code was pushed into
 runs:
   using: docker
   image: docker://christophshyper/action-commit-push:latest

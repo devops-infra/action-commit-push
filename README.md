@@ -1,6 +1,6 @@
-# GitHub Action for committing changes to repository
+# GitHub Action for committing changes to a repository
 
-GitHub Action that will create a new commit and push it to the repository.
+**GitHub Action that will create a new commit and push it back to the repository.**
 
 Dockerized as [christophshyper/action-commit-push](https://hub.docker.com/repository/docker/christophshyper/action-commit-push).
 
@@ -12,22 +12,21 @@ Features:
 
 
 ## Badge swag
-[
-![GitHub](https://img.shields.io/badge/github-devops--infra%2Faction--commit--push-brightgreen.svg?style=flat-square&logo=github)
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/devops-infra/action-commit-push?color=brightgreen&label=Code%20size&style=flat-square&logo=github)
-![GitHub last commit](https://img.shields.io/github/last-commit/devops-infra/action-commit-push?color=brightgreen&label=Last%20commit&style=flat-square&logo=github)
-](https://github.com/devops-infra/action-commit-push "shields.io")
-[![Push to master](https://img.shields.io/github/workflow/status/devops-infra/action-commit-push/Push%20to%20master?color=brightgreen&label=Master%20branch&logo=github&style=flat-square)
-](https://github.com/devops-infra/action-commit-push/actions?query=workflow%3A%22Push+to+master%22)
-[![Push to other](https://img.shields.io/github/workflow/status/devops-infra/action-commit-push/Push%20to%20other?color=brightgreen&label=Pull%20requests&logo=github&style=flat-square)
-](https://github.com/devops-infra/action-commit-push/actions?query=workflow%3A%22Push+to+other%22)
+[![Master branch](https://github.com/devops-infra/action-commit-push/workflows/Master%20branch/badge.svg)](https://github.com/devops-infra/action-commit-push/actions?query=workflow%3A%22Master+branch%22)
+[![Other branches](https://github.com/devops-infra/action-commit-push/workflows/Other%20branches/badge.svg)](https://github.com/devops-infra/action-commit-push/actions?query=workflow%3A%22Other+branches%22)
 <br>
 [
-![DockerHub](https://img.shields.io/badge/docker-christophshyper%2Faction--commit--push-blue.svg?style=flat-square&logo=docker)
-![Dockerfile size](https://img.shields.io/github/size/devops-infra/action-commit-push/Dockerfile?label=Dockerfile%20size&style=flat-square&logo=docker)
-![Image size](https://img.shields.io/docker/image-size/christophshyper/action-commit-push/latest?label=Image%20size&style=flat-square&logo=docker)
-![Docker Pulls](https://img.shields.io/docker/pulls/christophshyper/action-commit-push?color=blue&label=Pulls&logo=docker&style=flat-square)
-![Docker version](https://img.shields.io/docker/v/christophshyper/action-commit-push?color=blue&label=Version&logo=docker&style=flat-square)
+![GitHub repo](https://img.shields.io/badge/GitHub-devops--infra%2Faction--commit--push-blueviolet.svg?style=plastic&logo=github)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/devops-infra/action-commit-push?color=blueviolet&label=Code%20size&style=plastic&logo=github)
+![GitHub last commit](https://img.shields.io/github/last-commit/devops-infra/action-commit-push?color=blueviolet&logo=github&style=plastic&label=Last%20commit)
+![GitHub license](https://img.shields.io/github/license/devops-infra/action-commit-push?color=blueviolet&logo=github&style=plastic&label=License)
+](https://github.com/devops-infra/action-commit-push "shields.io")
+<br>
+[
+![DockerHub](https://img.shields.io/badge/DockerHub-christophshyper%2Faction--commit--push-blue.svg?style=plastic&logo=docker)
+![Docker version](https://img.shields.io/docker/v/christophshyper/action-commit-push?color=blue&label=Version&logo=docker&style=plastic)
+![Image size](https://img.shields.io/docker/image-size/christophshyper/action-commit-push/latest?label=Image%20size&style=plastic&logo=docker)
+![Docker Pulls](https://img.shields.io/docker/pulls/christophshyper/action-commit-push?color=blue&label=Pulls&logo=docker&style=plastic)
 ](https://hub.docker.com/r/christophshyper/action-commit-push "shields.io")
 
 
@@ -38,18 +37,18 @@ Features:
       uses: devops-infra/action-commit-push@master
       with:
         github_token: "${{ secrets.GITHUB_TOKEN }}"
+        add_timestamp: true
         commit_prefix: "[AUTO]"
         target_branch: update/version
-        add_timestamp: true
 ```
 
 
 Input Variable | Required | Default |Description
 :--- | :---: | :---: | :---
 github_token | Yes | `""` | Personal Access Token for GitHub for pushing the code.
+add_timestamp | No | `false` | Whether to add the timestamp to a new branch name. Used when `target_branch` is set. Uses format `%Y-%m-%dT%H-%M-%SZ`.
 commit_prefix | No | `[AUTO-COMMIT]` | Prefix added to commit message.
 target_branch | No | *current branch* | Name of a new branch to push the code into. Creates branch if not existing.
-add_timestamp | No | `false` | Whether to add the timestamp to a new branch name. Used when target_branch is set. Uses format `%Y-%m-%dT%H-%M-%SZ`.
 
 Outputs | Description
 :--- | :---
@@ -103,5 +102,5 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           body: "**Automated pull request**<br><br>Replaced foo/bar"
-          title: "${{ github.event.commits[0].message }}"
+          title: ${{ github.event.commits[0].message }}
 ```
