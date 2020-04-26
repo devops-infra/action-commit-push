@@ -1,6 +1,6 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Contributiong details
+  - name: Contributing details
     url: https://github.com/devops-infra/action-commit-push/blob/master/.github/CONTRIBUTING.md
     about: Details about controbuting rules.
   - name: Code of Conduct
