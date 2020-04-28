@@ -6,9 +6,10 @@ set -e
 RET_CODE=0
 
 echo "Inputs:"
-echo "  commit_prefix: ${INPUT_COMMIT_PREFIX}"
-echo "  target_branch:   ${INPUT_TARGET_BRANCH}"
-echo "  add_timestamp: ${INPUT_ADD_TIMESTAMP}"
+echo "  commit_prefix:  ${INPUT_COMMIT_PREFIX}"
+echo "  commit_message: ${INPUT_COMMIT_MESSAGE}"
+echo "  target_branch:  ${INPUT_TARGET_BRANCH}"
+echo "  add_timestamp:  ${INPUT_ADD_TIMESTAMP}"
 
 # Require github_token
 if [[ -z "${GITHUB_TOKEN}" ]]; then
@@ -51,7 +52,13 @@ if [[ -n ${FILES_CHANGED} ]]; then
   git config --global user.name "${GITHUB_ACTOR}"
   git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
   git add -A
-  git commit -am "${INPUT_COMMIT_PREFIX} Files changed:" -m "${FILES_CHANGED}" --allow-empty
+  if [[ -n "${INPUT_COMMIT_MESSAGE}" ]]; then
+    git commit -am "${INPUT_COMMIT_MESSAGE}" --allow-empty
+  elif [[ -n "${INPUT_COMMIT_PREFIX}" ]]; then
+    git commit -am "${INPUT_COMMIT_PREFIX} Files changed:" -m "${FILES_CHANGED}" --allow-empty
+  else
+    git commit -am "Files changed:" -m "${FILES_CHANGED}" --allow-empty
+  fi
   git push origin "${BRANCH}"
 fi
 

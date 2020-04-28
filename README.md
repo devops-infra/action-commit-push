@@ -8,6 +8,7 @@ Features:
 * Can add a custom prefix to commit message by setting `commit_prefix`.
 * Can create a new branch when `target_branch` is set.  
 * Can add a timestamp to a branch name, when `target_branch` is set and `add_timestamp` is `true`. Will create a branch named `${branch_name}/${add_timestamp}`. Great for cron-based updates.
+* As a commit message will use `commit_message` if set, or `commit_prefix` and add changed files or just list changed files.
 * Good to combine with my other action [devops-infra/action-pull-request](https://github.com/devops-infra/action-pull-request).
 
 
@@ -39,6 +40,7 @@ Features:
         github_token: "${{ secrets.GITHUB_TOKEN }}"
         add_timestamp: true
         commit_prefix: "[AUTO]"
+        commit_message: "Automatic commit"
         target_branch: update/version
 ```
 
@@ -48,6 +50,7 @@ Input Variable | Required | Default |Description
 github_token | Yes | `""` | Personal Access Token for GitHub for pushing the code.
 add_timestamp | No | `false` | Whether to add the timestamp to a new branch name. Used when `target_branch` is set. Uses format `%Y-%m-%dT%H-%M-%SZ`.
 commit_prefix | No | `[AUTO-COMMIT]` | Prefix added to commit message.
+commit_message | No | `""` | Full commit message to set.
 target_branch | No | *current branch* | Name of a new branch to push the code into. Creates branch if not existing.
 
 Outputs | Description
@@ -76,6 +79,7 @@ jobs:
         uses: devops-infra/action-commit-push@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          commit_message: Replaced foo with bar
 ```
 
 Commit and push changes to a new branch and create pull request using my other action [devops-infra/action-pull-request](https://github.com/devops-infra/action-pull-request).

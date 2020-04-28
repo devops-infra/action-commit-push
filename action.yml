@@ -14,6 +14,10 @@ inputs:
     description: Prefix added to commit message
     required: false
     default: "[AUTO-COMMIT]"
+  commit_message:
+    description: Full commit message to set
+    required: false
+    default: ""
   target_branch:
     description: Name of a new branch to push the code into
     required: false
