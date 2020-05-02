@@ -2,7 +2,7 @@
 
 **GitHub Action that will create a new commit and push it back to the repository.**
 
-Dockerized as [christophshyper/action-commit-push](https://hub.docker.com/repository/docker/christophshyper/action-commit-push).
+Dockerized as [devopsinfra/action-commit-push](https://hub.docker.com/repository/docker/devopsinfra/action-commit-push).
 
 Features:
 * Can add a custom prefix to commit message by setting `commit_prefix`.
@@ -24,11 +24,11 @@ Features:
 ](https://github.com/devops-infra/action-commit-push "shields.io")
 <br>
 [
-![DockerHub](https://img.shields.io/badge/DockerHub-christophshyper%2Faction--commit--push-blue.svg?style=plastic&logo=docker)
-![Docker version](https://img.shields.io/docker/v/christophshyper/action-commit-push?color=blue&label=Version&logo=docker&style=plastic)
-![Image size](https://img.shields.io/docker/image-size/christophshyper/action-commit-push/latest?label=Image%20size&style=plastic&logo=docker)
-![Docker Pulls](https://img.shields.io/docker/pulls/christophshyper/action-commit-push?color=blue&label=Pulls&logo=docker&style=plastic)
-](https://hub.docker.com/r/christophshyper/action-commit-push "shields.io")
+![DockerHub](https://img.shields.io/badge/DockerHub-devopsinfra%2Faction--commit--push-blue.svg?style=plastic&logo=docker)
+![Docker version](https://img.shields.io/docker/v/devopsinfra/action-commit-push?color=blue&label=Version&logo=docker&style=plastic)
+![Image size](https://img.shields.io/docker/image-size/devopsinfra/action-commit-push/latest?label=Image%20size&style=plastic&logo=docker)
+![Docker Pulls](https://img.shields.io/docker/pulls/devopsinfra/action-commit-push?color=blue&label=Pulls&logo=docker&style=plastic)
+](https://hub.docker.com/r/devopsinfra/action-commit-push "shields.io")
 
 
 ## Reference
