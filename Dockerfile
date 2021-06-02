@@ -46,6 +46,7 @@ LABEL \
 COPY entrypoint.sh /
 
 # Install needed packages
+# hadolint ignore=DL3017,DL3018
 RUN set -eux \
   && chmod +x /entrypoint.sh \
   && apk update --no-cache \
@@ -57,4 +58,5 @@ RUN set -eux \
 
 # Finish up
 WORKDIR /github/workspace
+# hadolint ignore=DL3025
 ENTRYPOINT /entrypoint.sh
