@@ -1,4 +1,4 @@
-name: Check for updates
+name: Weekly build
 
 on:
   schedule:
@@ -8,7 +8,6 @@ on:
 jobs:
   build_and_push:
     name: Build and push images
-    needs: lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
