@@ -1,5 +1,5 @@
 # Use a clean tiny image to store artifacts in
-FROM alpine:3.11
+FROM alpine:3.14
 
 # Labels for http://label-schema.org/rc1/#build-time-labels
 # And for https://github.com/opencontainers/image-spec/blob/master/annotations.md
@@ -46,17 +46,15 @@ LABEL \
 COPY entrypoint.sh /
 
 # Install needed packages
-# hadolint ignore=DL3017,DL3018
 RUN set -eux \
-  && chmod +x /entrypoint.sh \
-  && apk update --no-cache \
-  && apk upgrade --no-cache \
-  && apk add --no-cache bash \
-  && apk add --no-cache git \
-  && rm -rf /var/cache/* \
-  && rm -rf /root/.cache/*
+  chmod +x /entrypoint.sh ;\
+  apk update --no-cache ;\
+  apk add --no-cache \
+    bash~=5.1.4 \
+    git~=2.32.0 ;\
+  rm -rf /var/cache/* ;\
+  rm -rf /root/.cache/*
 
 # Finish up
 WORKDIR /github/workspace
-# hadolint ignore=DL3025
-ENTRYPOINT /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
