@@ -29,7 +29,7 @@ outputs:
     description: Name of the branch code was pushed into
 runs:
   using: docker
-  image: docker://devopsinfra/action-commit-push:latest
+  image: docker://devopsinfra/action-commit-push:v0.3
   env:
     GITHUB_TOKEN: ${{ inputs.github_token }}
 branding:
