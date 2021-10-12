@@ -10,6 +10,7 @@ echo "  commit_prefix:  ${INPUT_COMMIT_PREFIX}"
 echo "  commit_message: ${INPUT_COMMIT_MESSAGE}"
 echo "  target_branch:  ${INPUT_TARGET_BRANCH}"
 echo "  add_timestamp:  ${INPUT_ADD_TIMESTAMP}"
+echo "  force:          ${INPUT_FORCE}"
 
 # Require github_token
 if [[ -z "${GITHUB_TOKEN}" ]]; then
@@ -45,12 +46,14 @@ if [[ (-n "${INPUT_TARGET_BRANCH}" || "${INPUT_ADD_TIMESTAMP}" == "true") && -n 
   git checkout -b "${BRANCH}"
 fi
 
+# Set git credentials
+git remote set-url origin "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}"
+git config --global user.name "${GITHUB_ACTOR}"
+git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+
 # Create an auto commit
 if [[ -n ${FILES_CHANGED} ]]; then
-  echo "[INFO] Committing and pushing changes."
-  git remote set-url origin "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}"
-  git config --global user.name "${GITHUB_ACTOR}"
-  git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+  echo "[INFO] Committing changes."
   git add -A
   if [[ -n "${INPUT_COMMIT_MESSAGE}" ]]; then
     git commit -am "${INPUT_COMMIT_MESSAGE}" --allow-empty
@@ -59,6 +62,19 @@ if [[ -n ${FILES_CHANGED} ]]; then
   else
     git commit -am "Files changed:" -m "${FILES_CHANGED}" --allow-empty
   fi
+  if [[ "${INPUT_FORCE}" == "true" ]]; then
+    git push origin "${BRANCH}" --force
+  else
+    git push origin "${BRANCH}"
+  fi
+fi
+
+# Push
+if [[ "${INPUT_FORCE}" == "true" ]]; then
+  echo "[INFO] Pushing changes."
+  git push origin "${BRANCH}" --force
+elif [[ -n ${FILES_CHANGED} ]]; then
+  echo "[INFO] Pushing changes."
   git push origin "${BRANCH}"
 fi
 
