@@ -51,7 +51,7 @@ Features:
 | -------------- | -------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | github_token   | Yes      | `""`             | Personal Access Token for GitHub for pushing the code.                                                                 |
 | add_timestamp  | No       | `false`          | Whether to add the timestamp to a new branch name. Used when `target_branch` is set. Uses format `%Y-%m-%dT%H-%M-%SZ`. |
-| commit_prefix  | No       | `[AUTO-COMMIT]`  | Prefix added to commit message.                                                                                        |
+| commit_prefix  | No       | `[AUTO-COMMIT]`  | Prefix added to commit message. If `commit_message` is not used.                                                       |
 | commit_message | No       | `""`             | Full commit message to set.                                                                                            |
 | force          | No       | `false`          | Whether to use force push for fast-forward changes. Use only if necessary.                                             |
 | target_branch  | No       | *current branch* | Name of a new branch to push the code into. Creates branch if not existing.                                            |
