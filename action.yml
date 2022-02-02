@@ -33,7 +33,7 @@ outputs:
     description: Name of the branch code was pushed into
 runs:
   using: docker
-  image: docker://devopsinfra/action-commit-push:v0.4
+  image: docker://devopsinfra/action-commit-push:v0.5
   env:
     GITHUB_TOKEN: ${{ inputs.github_token }}
 branding:
