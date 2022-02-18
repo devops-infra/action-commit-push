@@ -47,14 +47,15 @@ Features:
 ```
 
 
-| Input Variable | Required | Default          | Description                                                                                                            |
-| -------------- | -------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| github_token   | Yes      | `""`             | Personal Access Token for GitHub for pushing the code.                                                                 |
-| add_timestamp  | No       | `false`          | Whether to add the timestamp to a new branch name. Used when `target_branch` is set. Uses format `%Y-%m-%dT%H-%M-%SZ`. |
-| commit_prefix  | No       | `[AUTO-COMMIT]`  | Prefix added to commit message. If `commit_message` is not used.                                                       |
-| commit_message | No       | `""`             | Full commit message to set.                                                                                            |
-| force          | No       | `false`          | Whether to use force push for fast-forward changes. Use only if necessary.                                             |
-| target_branch  | No       | *current branch* | Name of a new branch to push the code into. Creates branch if not existing.                                            |
+| Input Variable      | Required | Default          | Description                                                                                                            |
+| ------------------- | -------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| github_token        | Yes      | `""`             | Personal Access Token for GitHub for pushing the code.                                                                 |
+| add_timestamp       | No       | `false`          | Whether to add the timestamp to a new branch name. Used when `target_branch` is set. Uses format `%Y-%m-%dT%H-%M-%SZ`. |
+| commit_prefix       | No       | `[AUTO-COMMIT]`  | Prefix added to commit message. If `commit_message` is not used.                                                       |
+| commit_message      | No       | `""`             | Full commit message to set.                                                                                            |
+| force               | No       | `false`          | Whether to use force push for fast-forward changes. Use only if necessary.                                             |
+| organization_domain | No       | `github.com`     | Github Enterprise domain name.                                                                                         |
+| target_branch       | No       | *current branch* | Name of a new branch to push the code into. Creates branch if not existing.                                            |
 
 | Outputs       | Description                                                              |
 | ------------- | ------------------------------------------------------------------------ |
@@ -79,7 +80,7 @@ jobs:
         run: |
           find . -type f -name "*" -print0 | xargs -0 sed -i "s/foo/bar/g"
       - name: Commit and push changes
-        uses: devops-infra/action-commit-push@v0.5
+        uses: devops-infra/action-commit-push@v0.6
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           commit_message: Replaced foo with bar
@@ -100,7 +101,7 @@ jobs:
         run: |
           find . -type f -name "*" -print0 | xargs -0 sed -i "s/foo/bar/g"
       - name: Commit and push changes
-        uses: devops-infra/action-commit-push@v0.5
+        uses: devops-infra/action-commit-push@v0.6
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           commit_prefix: "[AUTO-COMMIT] foo/bar replace"

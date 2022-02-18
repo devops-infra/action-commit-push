@@ -22,6 +22,10 @@ inputs:
     description: Whether to force push
     required: false
     default: "false"
+  organization_domain:
+    description: Name of GitHub Enterprise organization
+    required: false
+    default: github.com
   target_branch:
     description: Name of a new branch to push the code into
     required: false
@@ -33,7 +37,7 @@ outputs:
     description: Name of the branch code was pushed into
 runs:
   using: docker
-  image: docker://devopsinfra/action-commit-push:v0.5
+  image: docker://devopsinfra/action-commit-push:v0.6
   env:
     GITHUB_TOKEN: ${{ inputs.github_token }}
 branding:

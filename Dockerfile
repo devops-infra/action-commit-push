@@ -50,7 +50,7 @@ RUN set -eux \
   chmod +x /entrypoint.sh ;\
   apk update --no-cache ;\
   apk add --no-cache \
-    bash~=5.1.8 \
+    bash~=5.1.16 \
     git~=2.34.1 \
     git-lfs~=3.0.2 ;\
   rm -rf /var/cache/* ;\
