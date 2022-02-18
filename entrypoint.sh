@@ -6,11 +6,12 @@ set -e
 RET_CODE=0
 
 echo "Inputs:"
-echo "  commit_prefix:  ${INPUT_COMMIT_PREFIX}"
-echo "  commit_message: ${INPUT_COMMIT_MESSAGE}"
-echo "  target_branch:  ${INPUT_TARGET_BRANCH}"
-echo "  add_timestamp:  ${INPUT_ADD_TIMESTAMP}"
-echo "  force:          ${INPUT_FORCE}"
+echo "  commit_prefix:       ${INPUT_COMMIT_PREFIX}"
+echo "  commit_message:      ${INPUT_COMMIT_MESSAGE}"
+echo "  target_branch:       ${INPUT_TARGET_BRANCH}"
+echo "  add_timestamp:       ${INPUT_ADD_TIMESTAMP}"
+echo "  organization_domain: ${INPUT_ORG_DOMAIN}"
+echo "  force:               ${INPUT_FORCE}"
 
 # Require github_token
 if [[ -z "${GITHUB_TOKEN}" ]]; then
@@ -47,9 +48,9 @@ if [[ (-n "${INPUT_TARGET_BRANCH}" || "${INPUT_ADD_TIMESTAMP}" == "true") && -n 
 fi
 
 # Set git credentials
-git remote set-url origin "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}"
+git remote set-url origin "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@${INPUT_ORG_DOMAIN}/${GITHUB_REPOSITORY}"
 git config --global user.name "${GITHUB_ACTOR}"
-git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+git config --global user.email "${GITHUB_ACTOR}@users.noreply.${INPUT_ORG_DOMAIN}"
 
 # Create an auto commit
 if [[ -n ${FILES_CHANGED} ]]; then
