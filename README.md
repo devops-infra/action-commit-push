@@ -1,5 +1,7 @@
 # GitHub Action for committing changes to a repository
 
+**TEST HUB**
+
 **GitHub Action that will create a new commit and push it back to the repository.**
 
 Dockerized as [devopsinfra/action-commit-push](https://hub.docker.com/repository/docker/devopsinfra/action-commit-push).
