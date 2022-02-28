@@ -6,12 +6,14 @@ set -e
 RET_CODE=0
 
 echo "Inputs:"
+echo "  add_timestamp:       ${INPUT_ADD_TIMESTAMP}"
+echo "  amend:               ${INPUT_AMEND}"
 echo "  commit_prefix:       ${INPUT_COMMIT_PREFIX}"
 echo "  commit_message:      ${INPUT_COMMIT_MESSAGE}"
-echo "  target_branch:       ${INPUT_TARGET_BRANCH}"
-echo "  add_timestamp:       ${INPUT_ADD_TIMESTAMP}"
-echo "  organization_domain: ${INPUT_ORGANIZATION_DOMAIN}"
 echo "  force:               ${INPUT_FORCE}"
+echo "  no_edit:             ${INPUT_NO_EDIT}"
+echo "  organization_domain: ${INPUT_ORGANIZATION_DOMAIN}"
+echo "  target_branch:       ${INPUT_TARGET_BRANCH}"
 
 # Require github_token
 if [[ -z "${GITHUB_TOKEN}" ]]; then
@@ -53,24 +55,34 @@ git config --global user.name "${GITHUB_ACTOR}"
 git config --global user.email "${GITHUB_ACTOR}@users.noreply.${INPUT_ORGANIZATION_DOMAIN}"
 
 # Create an auto commit
+COMMIT_PARAMS="--allow-empty"
 if [[ -n ${FILES_CHANGED} ]]; then
   echo "[INFO] Committing changes."
   git add -A
-  if [[ -n "${INPUT_COMMIT_MESSAGE}" ]]; then
-    git commit -am "${INPUT_COMMIT_MESSAGE}" --allow-empty
-  elif [[ -n "${INPUT_COMMIT_PREFIX}" ]]; then
-    git commit -am "${INPUT_COMMIT_PREFIX} Files changed:" -m "${FILES_CHANGED}" --allow-empty
+  if [[ "${INPUT_AMEND}" == "true" ]]; then
+    COMMIT_PARAMS+=" --amend"
+    if [[ "${INPUT_NO_EDIT}" == "true" ]]; then
+      COMMIT_PARAMS+=" --no-edit"
+      git commit "${COMMIT_PARAMS}"
+    fi
   else
-    git commit -am "Files changed:" -m "${FILES_CHANGED}" --allow-empty
+  # create a new commit or amend to the previous one
+    if [[ -n "${INPUT_COMMIT_MESSAGE}" ]]; then
+      git commit -am "${INPUT_COMMIT_MESSAGE}" "${COMMIT_PARAMS}"
+    elif [[ -n "${INPUT_COMMIT_PREFIX}" ]]; then
+      git commit -am "${INPUT_COMMIT_PREFIX} Files changed:" -m "${FILES_CHANGED}" "${COMMIT_PARAMS}"
+    else
+      git commit -am "Files changed:" -m "${FILES_CHANGED}" "${COMMIT_PARAMS}"
+    fi
   fi
 fi
 
 # Push
 if [[ "${INPUT_FORCE}" == "true" ]]; then
-  echo "[INFO] Pushing changes."
+  echo "[INFO] Force pushing changes"
   git push origin "${BRANCH}" --force
 elif [[ -n ${FILES_CHANGED} ]]; then
-  echo "[INFO] Pushing changes."
+  echo "[INFO] Pushing changes"
   git push origin "${BRANCH}"
 fi
 

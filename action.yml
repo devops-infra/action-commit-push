@@ -10,6 +10,10 @@ inputs:
     description: Whether to add timestamp to a new branch name
     required: false
     default: "false"
+  amend:
+    description: Whether to make amendment to the previous commit
+    required: false
+    default: "false"
   commit_prefix:
     description: Prefix added to commit message
     required: false
@@ -20,6 +24,10 @@ inputs:
     default: ""
   force:
     description: Whether to force push
+    required: false
+    default: "false"
+  no_edit:
+    description: Whether to not edit commit message when using amend
     required: false
     default: "false"
   organization_domain:
@@ -37,7 +45,7 @@ outputs:
     description: Name of the branch code was pushed into
 runs:
   using: docker
-  image: docker://devopsinfra/action-commit-push:v0.7
+  image: docker://devopsinfra/action-commit-push:v0.8
   env:
     GITHUB_TOKEN: ${{ inputs.github_token }}
 branding:
