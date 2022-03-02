@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2.4.0
+        uses: actions/checkout@v3
 
       - name: Download labels' config
         shell: bash
@@ -29,10 +29,11 @@ jobs:
 
   lint:
     name: Run linters
+    if: "!startsWith(github.ref, 'refs/heads/dependabot')"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2.4.0
+        uses: actions/checkout@v3
 
       - name: Docker Lint
         uses: luke142367/Docker-Lint-Action@v1.1.1
@@ -46,11 +47,10 @@ jobs:
 
   build:
     name: Build image
-    needs: lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2.4.0
+        uses: actions/checkout@v3
 
       - name: Build Docker image
         env:
@@ -62,7 +62,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2.4.0
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -74,7 +74,7 @@ jobs:
 
       - name: Create pull request - bugfix (conditional)
         if: startsWith(github.ref, 'refs/heads/bugfix')
-        uses: devops-infra/action-pull-request@v0.4
+        uses: devops-infra/action-pull-request@v0.4.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           assignee: ${{ github.actor }}
@@ -84,7 +84,7 @@ jobs:
 
       - name: Create pull request - dependency (conditional)
         if: startsWith(github.ref, 'refs/heads/dependency')
-        uses: devops-infra/action-pull-request@v0.4
+        uses: devops-infra/action-pull-request@v0.4.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           assignee: ${{ github.actor }}
@@ -94,7 +94,7 @@ jobs:
 
       - name: Create pull request - documentation (conditional)
         if: startsWith(github.ref, 'refs/heads/documentation')
-        uses: devops-infra/action-pull-request@v0.4
+        uses: devops-infra/action-pull-request@v0.4.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           assignee: ${{ github.actor }}
@@ -104,7 +104,7 @@ jobs:
 
       - name: Create pull request - feature (conditional)
         if: startsWith(github.ref, 'refs/heads/feature')
-        uses: devops-infra/action-pull-request@v0.4
+        uses: devops-infra/action-pull-request@v0.4.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           assignee: ${{ github.actor }}
@@ -114,7 +114,7 @@ jobs:
 
       - name: Create pull request - test (conditional)
         if: startsWith(github.ref, 'refs/heads/test')
-        uses: devops-infra/action-pull-request@v0.4
+        uses: devops-infra/action-pull-request@v0.4.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           assignee: ${{ github.actor }}
@@ -126,7 +126,7 @@ jobs:
 
       - name: Create pull request - other (conditional)
         if: "!startsWith(github.ref, 'refs/heads/bugfix') && !startsWith(github.ref, 'refs/heads/dependabot') && !startsWith(github.ref, 'refs/heads/dependency') && !startsWith(github.ref, 'refs/heads/documentation')  && !startsWith(github.ref, 'refs/heads/feature') && !startsWith(github.ref, 'refs/heads/test')"
-        uses: devops-infra/action-pull-request@v0.4
+        uses: devops-infra/action-pull-request@v0.4.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           assignee: ${{ github.actor }}
