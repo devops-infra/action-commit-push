@@ -80,6 +80,7 @@ fi
 # Push
 if [[ "${INPUT_FORCE}" == "true" ]]; then
   echo "[INFO] Force pushing changes"
+  git pull origin "${BRANCH}"
   git push origin "${BRANCH}" --force
 elif [[ -n ${FILES_CHANGED} ]]; then
   echo "[INFO] Pushing changes"
