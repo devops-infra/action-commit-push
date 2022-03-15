@@ -24,6 +24,7 @@ if [[ -z "${GITHUB_TOKEN}" ]]; then
 fi
 
 # Get changed files
+git add -A
 FILES_MODIFIED=$(git diff --name-status)
 FILES_ADDED=$(git diff --staged --name-status)
 FILES_CHANGED=$(echo -e "${FILES_MODIFIED}\n${FILES_ADDED}")
@@ -55,25 +56,24 @@ git config --global user.name "${GITHUB_ACTOR}"
 git config --global user.email "${GITHUB_ACTOR}@users.noreply.${INPUT_ORGANIZATION_DOMAIN}"
 
 # Create an auto commit
-COMMIT_PARAMS="--allow-empty"
+COMMIT_PARAMS=()
+COMMIT_PARAMS+=("--allow-empty")
 if [[ -n ${FILES_CHANGED} ]]; then
   echo "[INFO] Committing changes."
-  git add -A
   if [[ "${INPUT_AMEND}" == "true" ]]; then
-    COMMIT_PARAMS+=" --amend"
+    COMMIT_PARAMS+=("--amend")
     if [[ "${INPUT_NO_EDIT}" == "true" ]]; then
-      COMMIT_PARAMS+=" --no-edit"
-      git commit "${COMMIT_PARAMS}"
+      COMMIT_PARAMS+=("--no-edit")
+      git commit "${COMMIT_PARAMS[@]}"
     fi
-  else
+  fi
   # create a new commit or amend to the previous one
-    if [[ -n "${INPUT_COMMIT_MESSAGE}" ]]; then
-      git commit -am "${INPUT_COMMIT_MESSAGE}" "${COMMIT_PARAMS}"
-    elif [[ -n "${INPUT_COMMIT_PREFIX}" ]]; then
-      git commit -am "${INPUT_COMMIT_PREFIX} Files changed:" -m "${FILES_CHANGED}" "${COMMIT_PARAMS}"
-    else
-      git commit -am "Files changed:" -m "${FILES_CHANGED}" "${COMMIT_PARAMS}"
-    fi
+  if [[ -n "${INPUT_COMMIT_MESSAGE}" ]]; then
+    git commit "${COMMIT_PARAMS[@]}" -am "${INPUT_COMMIT_MESSAGE}"
+  elif [[ -n "${INPUT_COMMIT_PREFIX}" ]]; then
+    git commit "${COMMIT_PARAMS[@]}" -am "${INPUT_COMMIT_PREFIX} Files changed:" -m "${FILES_CHANGED}"
+  else
+    git commit "${COMMIT_PARAMS[@]}" -am "Files changed:" -m "${FILES_CHANGED}"
   fi
 fi
 
