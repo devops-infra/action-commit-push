@@ -82,7 +82,7 @@ jobs:
         run: |
           find . -type f -name "*" -print0 | xargs -0 sed -i "s/foo/bar/g"
       - name: Commit and push changes
-        uses: devops-infra/action-commit-push@v0.8
+        uses: devops-infra/action-commit-push@v0.8.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           commit_message: Replaced foo with bar
@@ -103,7 +103,7 @@ jobs:
         run: |
           find . -type f -name "*" -print0 | xargs -0 sed -i "s/foo/bar/g"
       - name: Commit and push changes
-        uses: devops-infra/action-commit-push@v0.8
+        uses: devops-infra/action-commit-push@v0.8.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           commit_prefix: "[AUTO-COMMIT] foo/bar replace"
