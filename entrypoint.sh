@@ -60,13 +60,11 @@ if [[ -n ${FILES_CHANGED} ]]; then
   echo "[INFO] Committing changes."
   if [[ "${INPUT_AMEND}" == "true" ]]; then
     COMMIT_PARAMS+=("--amend")
-    if [[ "${INPUT_NO_EDIT}" == "true" ]]; then
-      COMMIT_PARAMS+=("--no-edit")
-      git commit "${COMMIT_PARAMS[@]}"
-    fi
   fi
-  # create a new commit or amend to the previous one
-  if [[ -n "${INPUT_COMMIT_MESSAGE}" ]]; then
+  if [[ "${INPUT_NO_EDIT}" == "true" ]]; then
+    COMMIT_PARAMS+=("--no-edit")
+    git commit "${COMMIT_PARAMS[@]}"
+  elif [[ -n "${INPUT_COMMIT_MESSAGE}" ]]; then
     git commit "${COMMIT_PARAMS[@]}" -am "${INPUT_COMMIT_MESSAGE}"
   elif [[ -n "${INPUT_COMMIT_PREFIX}" ]]; then
     git commit "${COMMIT_PARAMS[@]}" -am "${INPUT_COMMIT_PREFIX} Files changed:" -m "${FILES_CHANGED}"
