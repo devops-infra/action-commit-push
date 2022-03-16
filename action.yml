@@ -17,7 +17,7 @@ inputs:
   commit_prefix:
     description: Prefix added to commit message
     required: false
-    default: "[AUTO-COMMIT]"
+    default: ""
   commit_message:
     description: Full commit message to set
     required: false
@@ -45,7 +45,7 @@ outputs:
     description: Name of the branch code was pushed into
 runs:
   using: docker
-  image: docker://devopsinfra/action-commit-push:v0.8.2
+  image: docker://devopsinfra/action-commit-push:v0.8.3
   env:
     GITHUB_TOKEN: ${{ inputs.github_token }}
 branding:

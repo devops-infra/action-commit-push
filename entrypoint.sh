@@ -25,9 +25,7 @@ fi
 
 # Get changed files
 git add -A
-FILES_MODIFIED=$(git diff --name-status)
-FILES_ADDED=$(git diff --staged --name-status)
-FILES_CHANGED=$(echo -e "${FILES_MODIFIED}\n${FILES_ADDED}")
+FILES_CHANGED=$(git diff --staged --name-status)
 if [[ -n ${FILES_CHANGED} ]]; then
   echo -e "\n[INFO] Files changed:\n${FILES_CHANGED}"
 else
