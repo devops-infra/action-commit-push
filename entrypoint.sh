@@ -34,13 +34,15 @@ fi
 
 # Setting branch name
 BRANCH="${INPUT_TARGET_BRANCH:-$(git symbolic-ref --short -q HEAD)}"
-
 # Add timestamp to branch name
 if [[ "${INPUT_ADD_TIMESTAMP}" == "true" && -n ${FILES_CHANGED} ]]; then
   TIMESTAMP=$(date -u +"%Y-%m-%dT%H-%M-%SZ")
-  BRANCH="${BRANCH}-${TIMESTAMP}"
+  if [[ -n ${BRANCH} ]]; then
+    BRANCH="${BRANCH}-${TIMESTAMP}"
+  else
+    BRANCH="${TIMESTAMP}"
+  fi
 fi
-
 echo -e "\n[INFO] Target branch: ${BRANCH}"
 
 # Create a new branch
@@ -64,10 +66,8 @@ if [[ -n ${FILES_CHANGED} ]]; then
   if [[ "${INPUT_NO_EDIT}" == "true" ]]; then
     COMMIT_PARAMS+=("--no-edit")
     git commit "${COMMIT_PARAMS[@]}"
-  elif [[ -n "${INPUT_COMMIT_MESSAGE}" ]]; then
-    git commit "${COMMIT_PARAMS[@]}" -am "${INPUT_COMMIT_MESSAGE}"
-  elif [[ -n "${INPUT_COMMIT_PREFIX}" ]]; then
-    git commit "${COMMIT_PARAMS[@]}" -am "${INPUT_COMMIT_PREFIX} Files changed:" -m "${FILES_CHANGED}"
+  elif [[ -n "${INPUT_COMMIT_MESSAGE}" || -n "${INPUT_COMMIT_PREFIX}" ]]; then
+    git commit "${COMMIT_PARAMS[@]}" -am "${INPUT_COMMIT_PREFIX}${INPUT_COMMIT_MESSAGE}" -m "Files changed:\n${FILES_CHANGED}"
   else
     git commit "${COMMIT_PARAMS[@]}" -am "Files changed:" -m "${FILES_CHANGED}"
   fi

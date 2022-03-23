@@ -19,7 +19,7 @@ inputs:
     required: false
     default: ""
   commit_message:
-    description: Full commit message to set
+    description: Commit message to set
     required: false
     default: ""
   force:
@@ -45,7 +45,7 @@ outputs:
     description: Name of the branch code was pushed into
 runs:
   using: docker
-  image: docker://devopsinfra/action-commit-push:v0.8.4
+  image: docker://devopsinfra/action-commit-push:v0.9.0
   env:
     GITHUB_TOKEN: ${{ inputs.github_token }}
 branding:
