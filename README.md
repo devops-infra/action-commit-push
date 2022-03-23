@@ -5,12 +5,14 @@
 Dockerized as [devopsinfra/action-commit-push](https://hub.docker.com/repository/docker/devopsinfra/action-commit-push).
 
 Features:
-* Can add a custom prefix to commit message by setting `commit_prefix`.
-* Can create a new branch when `target_branch` is set.  
-* Can add a timestamp to a branch name, when `target_branch` is set and `add_timestamp` is `true`. Will create a branch named `${branch_name}/${add_timestamp}`. Great for cron-based updates.
-* As a commit message will use `commit_message` if set, or `commit_prefix` and add changed files or just list changed files.
+* Can add a custom prefix to commit message title by setting `commit_prefix`.
+* As a commit message title will use `commit_message` if set, or `commit_prefix` and add changed files or just list of changed files.
+* Can create a new branch when `target_branch` is set.
+* Can add a timestamp to a branch name (great for cron-based updates): 
+  * When `target_branch` is set and `add_timestamp` is `true` will create a branch named `${branch_name}/${add_timestamp}`. 
+  * When `target_branch` is not set and `add_timestamp` is `true` will create a branch named `${add_timestamp}`.
 * Good to combine with my other action [devops-infra/action-pull-request](https://github.com/devops-infra/action-pull-request).
-* Can use `git push --force` for fast-forward changes.
+* Can use `git push --force` for fast-forward changes with `force` input.
 
 
 ## Badge swag
@@ -50,10 +52,10 @@ Features:
 | Input Variable      | Required | Default          | Description                                                                                                                                                        |
 | ------------------- | -------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | github_token        | Yes      | `""`             | Personal Access Token for GitHub for pushing the code.                                                                                                             |
-| add_timestamp       | No       | `false`          | Whether to add the timestamp to a new branch name. Used when `target_branch` is set. Uses format `%Y-%m-%dT%H-%M-%SZ`.                                             |
+| add_timestamp       | No       | `false`          | Whether to add the timestamp to a new branch name. Uses format `%Y-%m-%dT%H-%M-%SZ`.                                                                               |
 | amend               | No       | `false`          | Whether to make amendment to the previous commit (`--amend`). Cannot be used together with `commit_message` or `commit_prefix`.                                    |
-| commit_prefix       | No       | `""`             | Prefix added to commit message. If `commit_message` is not used.                                                                                                   |
-| commit_message      | No       | `""`             | Full commit message to set. Cannot be used together with `amend`.                                                                                                  |
+| commit_prefix       | No       | `""`             | Prefix added to commit message. Combines with `commit_message`.                                                                                                    |
+| commit_message      | No       | `""`             | Commit message to set. Combines with `commit_prefix`. Cannot be used together with `amend`.                                                                        |
 | force               | No       | `false`          | Whether to use force push for fast-forward changes (`--force`). Use only if necessary, e.g. when using `--amend`. And set `fetch-depth: 0` for `actions/checkout`. |
 | no_edit             | No       | `false`          | Whether to not edit commit message when using amend (`--no-edit`).                                                                                                 |
 | organization_domain | No       | `github.com`     | Github Enterprise domain name.                                                                                                                                     |
@@ -82,7 +84,7 @@ jobs:
         run: |
           find . -type f -name "*" -print0 | xargs -0 sed -i "s/foo/bar/g"
       - name: Commit and push changes
-        uses: devops-infra/action-commit-push@v0.8.4
+        uses: devops-infra/action-commit-push@v0.9.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           commit_message: Replaced foo with bar
@@ -103,7 +105,7 @@ jobs:
         run: |
           find . -type f -name "*" -print0 | xargs -0 sed -i "s/foo/bar/g"
       - name: Commit and push changes
-        uses: devops-infra/action-commit-push@v0.8.4
+        uses: devops-infra/action-commit-push@v0.9.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           commit_prefix: "[AUTO-COMMIT] foo/bar replace"
