@@ -23,6 +23,13 @@ if [[ -z "${GITHUB_TOKEN}" ]]; then
   exit 1
 fi
 
+# Set git credentials
+git config --global safe.directory "${GITHUB_WORKSPACE}"
+git config --global safe.directory /github/workspace
+git remote set-url origin "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@${INPUT_ORGANIZATION_DOMAIN}/${GITHUB_REPOSITORY}"
+git config --global user.name "${GITHUB_ACTOR}"
+git config --global user.email "${GITHUB_ACTOR}@users.noreply.${INPUT_ORGANIZATION_DOMAIN}"
+
 # Get changed files
 git add -A
 FILES_CHANGED=$(git diff --staged --name-status)
@@ -49,13 +56,6 @@ echo -e "\n[INFO] Target branch: ${BRANCH}"
 if [[ (-n "${INPUT_TARGET_BRANCH}" || "${INPUT_ADD_TIMESTAMP}" == "true") && -n ${FILES_CHANGED} ]]; then
   git checkout -b "${BRANCH}"
 fi
-
-# Set git credentials
-git remote set-url origin "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@${INPUT_ORGANIZATION_DOMAIN}/${GITHUB_REPOSITORY}"
-git config --global safe.directory "${GITHUB_WORKSPACE}"
-git config --global safe.directory /github/workspace
-git config --global user.name "${GITHUB_ACTOR}"
-git config --global user.email "${GITHUB_ACTOR}@users.noreply.${INPUT_ORGANIZATION_DOMAIN}"
 
 # Create an auto commit
 COMMIT_PARAMS=()
