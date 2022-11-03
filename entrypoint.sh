@@ -85,8 +85,12 @@ elif [[ -n ${FILES_CHANGED} ]]; then
 fi
 
 # Finish
-echo "files_changed=${FILES_CHANGED}" >>"$GITHUB_OUTPUT"
-echo "branch_name=${BRANCH}" >>"$GITHUB_OUTPUT"
+{
+  echo "files_changed<<EOF"
+  echo "${FILES_CHANGED}"
+  echo "EOF"
+  echo "branch_name=${BRANCH}"
+} >> "$GITHUB_OUTPUT"
 if [[ ${RET_CODE} != "0" ]]; then
   echo -e "\n[ERROR] Check log for errors."
   exit 1
