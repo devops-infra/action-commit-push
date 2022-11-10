@@ -69,7 +69,7 @@ if [[ -n ${FILES_CHANGED} ]]; then
     COMMIT_PARAMS+=("--no-edit")
     git commit "${COMMIT_PARAMS[@]}"
   elif [[ -n "${INPUT_COMMIT_MESSAGE}" || -n "${INPUT_COMMIT_PREFIX}" ]]; then
-    git commit "${COMMIT_PARAMS[@]}" -am "${INPUT_COMMIT_PREFIX}${INPUT_COMMIT_MESSAGE}" -m "Files changed:\n${FILES_CHANGED}"
+    git commit "${COMMIT_PARAMS[@]}" -am "${INPUT_COMMIT_PREFIX}${INPUT_COMMIT_MESSAGE}" -m "$(echo -e "Files changed:\n${FILES_CHANGED}")"
   else
     git commit "${COMMIT_PARAMS[@]}" -am "Files changed:" -m "${FILES_CHANGED}"
   fi
@@ -87,10 +87,10 @@ fi
 # Finish
 {
   echo "files_changed<<EOF"
-  echo "${FILES_CHANGED}"
+  echo -e "${FILES_CHANGED}"
   echo "EOF"
   echo "branch_name=${BRANCH}"
-} >> "$GITHUB_OUTPUT"
+} >> "${GITHUB_OUTPUT}"
 if [[ ${RET_CODE} != "0" ]]; then
   echo -e "\n[ERROR] Check log for errors."
   exit 1
