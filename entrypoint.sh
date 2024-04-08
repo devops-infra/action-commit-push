@@ -10,6 +10,7 @@ echo "  add_timestamp:       ${INPUT_ADD_TIMESTAMP}"
 echo "  amend:               ${INPUT_AMEND}"
 echo "  commit_prefix:       ${INPUT_COMMIT_PREFIX}"
 echo "  commit_message:      ${INPUT_COMMIT_MESSAGE}"
+echo "  message_cleanup:     ${INPUT_MESSAGE_CLEANUP}"
 echo "  force:               ${INPUT_FORCE}"
 echo "  no_edit:             ${INPUT_NO_EDIT}"
 echo "  organization_domain: ${INPUT_ORGANIZATION_DOMAIN}"
@@ -29,6 +30,7 @@ git config --global safe.directory /github/workspace
 git remote set-url origin "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@${INPUT_ORGANIZATION_DOMAIN}/${GITHUB_REPOSITORY}"
 git config --global user.name "${GITHUB_ACTOR}"
 git config --global user.email "${GITHUB_ACTOR}@users.noreply.${INPUT_ORGANIZATION_DOMAIN}"
+git config --global commit.cleanup "${INPUT_MESSAGE_CLEANUP}"
 
 # Get changed files
 git add -A

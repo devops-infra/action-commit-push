@@ -38,6 +38,11 @@ inputs:
     description: Name of a new branch to push the code into
     required: false
     default: ""
+  message_cleanup:
+    # https://git-scm.com/docs/git-commit#Documentation/git-commit.txt---cleanupltmodegt
+    description: 'Determines how the supplied commit message should be cleaned up before committing'
+    required: false
+    default: default
 outputs:
   files_changed:
     description: List of changed files
