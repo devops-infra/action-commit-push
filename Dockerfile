@@ -1,6 +1,9 @@
 # Use a clean tiny image to store artifacts in
 FROM ubuntu:24.04
 
+# Disable interactive mode
+ENV DEBIAN_FRONTEND noninteractive
+
 # Multi-architecture from buildx
 ARG TARGETPLATFORM
 
@@ -15,6 +18,7 @@ RUN chmod +x /entrypoint.sh ;\
   apt-get install --no-install-recommends -y \
     gpg-agent \
     software-properties-common ;\
+  echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections ;\
   add-apt-repository ppa:git-core/ppa ;\
   apt-get update -y ;\
   apt-get install --no-install-recommends -y \

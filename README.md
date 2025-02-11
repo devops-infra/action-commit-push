@@ -6,7 +6,7 @@
 
 Available in Docker Hub: [devopsinfra/action-commit-push:latest](https://hub.docker.com/repository/docker/devopsinfra/action-commit-push)
 
-And GitHub Packages: [ghcr.io/devops-infra/docker-terragrunt/docker-terragrunt:latest](https://github.com/devops-infra/action-commit-push/packages)
+And GitHub Packages: [ghcr.io/devops-infra/docker-terragrunt/docker-terragrunt:latest](https://github.com/orgs/devops-infra/packages/container/package/action-commit-push)
 
 
 Features:
