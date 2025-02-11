@@ -1,8 +1,13 @@
-# GitHub Action for committing changes to a repository
+# GitHub Action for committing changes to a repository.
 
-**GitHub Action that will create a new commit and push it back to the repository.**
+## GitHub Action that will create a new commit and push it back to the repository.
 
-Dockerized as [devopsinfra/action-commit-push](https://hub.docker.com/repository/docker/devopsinfra/action-commit-push).
+### Supporting `amd64` and `aarch64/arm64` images!
+
+Available in Docker Hub: [devopsinfra/action-commit-push:latest](https://hub.docker.com/repository/docker/devopsinfra/action-commit-push)
+
+And GitHub Packages: [ghcr.io/devops-infra/docker-terragrunt/docker-terragrunt:latest](https://github.com/devops-infra/action-commit-push/packages)
+
 
 Features:
 * Can add a custom prefix to commit message title by setting `commit_prefix`.
@@ -79,7 +84,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@master
       - name: Change something
         run: |
           find . -type f -name "*.md" -print0 | xargs -0 sed -i "s/foo/bar/g"
@@ -100,7 +105,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@master
       - name: Change something
         run: |
           find . -type f -name "*.md" -print0 | xargs -0 sed -i "s/foo/bar/g"
