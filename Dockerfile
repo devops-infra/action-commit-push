@@ -1,5 +1,28 @@
 # Use a clean tiny image to store artifacts in
-FROM ubuntu:jammy-20240808
+FROM ubuntu:24.04
+
+# Multi-architecture from buildx
+ARG TARGETPLATFORM
+
+# Copy all needed files
+COPY entrypoint.sh /
+
+# Install needed packages
+SHELL ["/bin/bash", "-euxo", "pipefail", "-c"]
+# hadolint ignore=DL3008
+RUN chmod +x /entrypoint.sh ;\
+  apt-get update -y ;\
+  apt-get install --no-install-recommends -y \
+    gpg-agent \
+    software-properties-common ;\
+  add-apt-repository ppa:git-core/ppa ;\
+  apt-get update -y ;\
+  apt-get install --no-install-recommends -y \
+    git \
+    git-lfs ;\
+  apt-get clean ;\
+  rm -rf /var/lib/apt/lists/*
+
 
 # Labels for http://label-schema.org/rc1/#build-time-labels
 # And for https://github.com/opencontainers/image-spec/blob/master/annotations.md
@@ -8,7 +31,7 @@ ARG NAME="GitHub Action for committing changes to a repository"
 ARG DESCRIPTION="GitHub Action that will create a new commit and push it back to the repository"
 ARG REPO_URL="https://github.com/devops-infra/action-commit-push"
 ARG AUTHOR="Krzysztof Szyper / ChristophShyper / biotyk@mail.com"
-ARG HOMEPAGE="https://christophshyper.github.io/"
+ARG HOMEPAGE="https://shyper.pro"
 ARG BUILD_DATE=2020-04-01T00:00:00Z
 ARG VCS_REF=abcdef1
 ARG VERSION=v0.0
@@ -41,25 +64,6 @@ LABEL \
   org.opencontainers.image.description="${DESCRIPTION}" \
   maintainer="${AUTHOR}" \
   repository="${REPO_URL}"
-
-# Copy all needed files
-COPY entrypoint.sh /
-
-# Install needed packages
-SHELL ["/bin/bash", "-euxo", "pipefail", "-c"]
-# hadolint ignore=DL3008
-RUN chmod +x /entrypoint.sh ;\
-  apt-get update -y ;\
-  apt-get install --no-install-recommends -y \
-    gpg-agent \
-    software-properties-common ;\
-  add-apt-repository ppa:git-core/ppa ;\
-  apt-get update -y ;\
-  apt-get install --no-install-recommends -y \
-    git \
-    git-lfs ;\
-  apt-get clean ;\
-  rm -rf /var/lib/apt/lists/*
 
 # Finish up
 WORKDIR /github/workspace
