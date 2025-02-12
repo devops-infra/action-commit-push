@@ -83,7 +83,7 @@ jobs:
 
       - name: PR - bugfix (conditional)
         if: startsWith(github.ref, 'refs/heads/bug')
-        uses: devops-infra/action-pull-request@v0.5.5
+        uses: devops-infra/action-pull-request@v0.6.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           assignee: ${{ github.actor }}
