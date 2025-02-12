@@ -1,7 +1,5 @@
 # GitHub Action for committing changes to a repository.
 
-## GitHub Action that will create a new commit and push it back to the repository.
-
 ### Supporting `amd64` and `aarch64/arm64` images!
 
 Useful in combination with my other action [devops-infra/action-pull-request](https://github.com/devops-infra/action-pull-request).
@@ -23,9 +21,6 @@ Features:
 
 
 ## Badge swag
-[![Master branch](https://github.com/devops-infra/action-commit-push/workflows/Master%20branch/badge.svg)](https://github.com/devops-infra/action-commit-push/actions?query=workflow%3A%22Master+branch%22)
-[![Other branches](https://github.com/devops-infra/action-commit-push/workflows/Other%20branches/badge.svg)](https://github.com/devops-infra/action-commit-push/actions?query=workflow%3A%22Other+branches%22)
-<br>
 [
 ![GitHub repo](https://img.shields.io/badge/GitHub-devops--infra%2Faction--commit--push-blueviolet.svg?style=plastic&logo=github)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/devops-infra/action-commit-push?color=blueviolet&label=Code%20size&style=plastic&logo=github)
