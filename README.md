@@ -4,9 +4,11 @@
 
 ### Supporting `amd64` and `aarch64/arm64` images!
 
-Available in Docker Hub: [devopsinfra/action-commit-push:latest](https://hub.docker.com/repository/docker/devopsinfra/action-commit-push)
+Useful in combination with my other action [devops-infra/action-pull-request](https://github.com/devops-infra/action-pull-request).
 
-And GitHub Packages: [ghcr.io/devops-infra/docker-terragrunt/docker-terragrunt:latest](https://github.com/orgs/devops-infra/packages/container/package/action-commit-push)
+Available in Docker Hub: [devopsinfra/action-commit-push:latest](https://hub.docker.com/repository/docker/devopsinfra/action-commit-push)
+<br>
+And GitHub Packages: [ghcr.io/devops-infra/action-commit-push/action-commit-push:latest](https://github.com/orgs/devops-infra/packages/container/package/action-commit-push)
 
 
 Features:
