@@ -28,7 +28,7 @@ RUN chmod +x /entrypoint.sh ;\
   dpkg --unpack git-lfs*.deb ;\
   rm -f /var/lib/dpkg/info/git-lfs.postinst ;\
   dpkg --configure git-lfs ;\
-  apt-get install -f ;\
+  apt-get install -f --no-install-recommends -y ;\
   rm git-lfs*.deb ;\
   apt-get clean ;\
   rm -rf /var/lib/apt/lists/*
