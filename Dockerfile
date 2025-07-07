@@ -22,8 +22,14 @@ RUN chmod +x /entrypoint.sh ;\
   add-apt-repository ppa:git-core/ppa ;\
   apt-get update -y ;\
   apt-get install --no-install-recommends -y \
-    git \
-    git-lfs ;\
+    git ;\
+  # Install git-lfs without post-install configuration to avoid dpkg errors
+  apt-get download git-lfs ;\
+  dpkg --unpack git-lfs*.deb ;\
+  rm -f /var/lib/dpkg/info/git-lfs.postinst ;\
+  dpkg --configure git-lfs ;\
+  apt-get install -f ;\
+  rm git-lfs*.deb ;\
   apt-get clean ;\
   rm -rf /var/lib/apt/lists/*
 
