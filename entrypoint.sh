@@ -11,6 +11,7 @@ echo "  amend:               ${INPUT_AMEND}"
 echo "  commit_prefix:       ${INPUT_COMMIT_PREFIX}"
 echo "  commit_message:      ${INPUT_COMMIT_MESSAGE}"
 echo "  force:               ${INPUT_FORCE}"
+echo "  force_without_lease: ${INPUT_FORCE_WITHOUT_LEASE}"
 echo "  no_edit:             ${INPUT_NO_EDIT}"
 echo "  organization_domain: ${INPUT_ORGANIZATION_DOMAIN}"
 echo "  target_branch:       ${INPUT_TARGET_BRANCH}"
@@ -76,8 +77,11 @@ if [[ -n ${FILES_CHANGED} ]]; then
 fi
 
 # Push
-if [[ "${INPUT_FORCE}" == "true" ]]; then
-  echo "[INFO] Force pushing changes"
+if [[ "${INPUT_FORCE_WITHOUT_LEASE}" == "true" ]]; then
+  echo "[INFO] Force pushing changes without lease"
+  git push --force origin "${BRANCH}"
+elif [[ "${INPUT_FORCE}" == "true" ]]; then
+  echo "[INFO] Force pushing changes with lease"
   git push --force-with-lease origin "${BRANCH}"
 elif [[ -n ${FILES_CHANGED} ]]; then
   echo "[INFO] Pushing changes"

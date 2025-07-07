@@ -47,6 +47,7 @@ Features:
         commit_prefix: "[AUTO]"
         commit_message: "Automatic commit"
         force: false
+        force_without_lease: false
         target_branch: update/version
 ```
 
@@ -58,7 +59,8 @@ Features:
 | amend               | No       | `false`          | Whether to make amendment to the previous commit (`--amend`). Cannot be used together with `commit_message` or `commit_prefix`.                                    |
 | commit_prefix       | No       | `""`             | Prefix added to commit message. Combines with `commit_message`.                                                                                                    |
 | commit_message      | No       | `""`             | Commit message to set. Combines with `commit_prefix`. Cannot be used together with `amend`.                                                                        |
-| force               | No       | `false`          | Whether to use force push for fast-forward changes (`--force`). Use only if necessary, e.g. when using `--amend`. And set `fetch-depth: 0` for `actions/checkout`. |
+| force               | No       | `false`          | Whether to use force push with lease (`--force-with-lease`). Use only if necessary, e.g. when using `--amend`. And set `fetch-depth: 0` for `actions/checkout`. |
+| force_without_lease | No       | `false`          | Whether to use force push without lease (`--force`). Use only when you need to overwrite remote changes. Potentially dangerous.                                  |
 | no_edit             | No       | `false`          | Whether to not edit commit message when using amend (`--no-edit`).                                                                                                 |
 | organization_domain | No       | `github.com`     | Github Enterprise domain name.                                                                                                                                     |
 | target_branch       | No       | *current branch* | Name of a new branch to push the code into. Creates branch if not existing.                                                                                        |
