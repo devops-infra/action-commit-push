@@ -26,6 +26,10 @@ inputs:
     description: Whether to force push
     required: false
     default: "false"
+  force_without_lease:
+    description: Whether to force push without lease (--force instead of --force-with-lease)
+    required: false
+    default: "false"
   no_edit:
     description: Whether to not edit commit message when using amend
     required: false
