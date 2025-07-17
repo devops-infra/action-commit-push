@@ -48,10 +48,22 @@ outputs:
   branch_name:
     description: Name of the branch code was pushed into
 runs:
-  using: docker
-  image: docker://devopsinfra/action-commit-push:v0.10.0
-  env:
-    GITHUB_TOKEN: ${{ inputs.github_token }}
+  using: composite
+  steps:
+    - name: Run action
+      run: ${{ github.action_path }}/run.sh
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+        INPUT_ADD_TIMESTAMP: ${{ inputs.add_timestamp }}
+        INPUT_AMEND: ${{ inputs.amend }}
+        INPUT_COMMIT_PREFIX: ${{ inputs.commit_prefix }}
+        INPUT_COMMIT_MESSAGE: ${{ inputs.commit_message }}
+        INPUT_FORCE: ${{ inputs.force }}
+        INPUT_FORCE_WITHOUT_LEASE: ${{ inputs.force_without_lease }}
+        INPUT_NO_EDIT: ${{ inputs.no_edit }}
+        INPUT_ORGANIZATION_DOMAIN: ${{ inputs.organization_domain }}
+        INPUT_TARGET_BRANCH: ${{ inputs.target_branch }}
 branding:
   color: purple
   icon: upload-cloud

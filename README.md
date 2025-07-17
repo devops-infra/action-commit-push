@@ -1,6 +1,7 @@
 # GitHub Action for committing changes to a repository.
 
 ### Supporting `amd64` and `aarch64/arm64` images!
+### **Cross-platform compatible** - Works on Linux, Windows, and macOS runners!
 
 Useful in combination with my other action [devops-infra/action-pull-request](https://github.com/devops-infra/action-pull-request).
 
@@ -10,6 +11,7 @@ And GitHub Packages: [ghcr.io/devops-infra/action-commit-push/action-commit-push
 
 
 Features:
+* **Cross-platform support** - Works on Linux, Windows (with Docker Desktop), and macOS runners.
 * Can add a custom prefix to commit message title by setting `commit_prefix`.
 * As a commit message title will use `commit_message` if set, or `commit_prefix` and add changed files or just list of changed files.
 * Can create a new branch when `target_branch` is set.
@@ -69,6 +71,41 @@ Features:
 | ------------- | ------------------------------------------------------------------------ |
 | files_changed | List of changed files. As returned by `git diff --staged --name-status`. |
 | branch_name   | Name of the branch code was pushed into.                                 |
+
+
+## Platform Requirements
+
+This action now supports **cross-platform execution**:
+
+- **Linux runners**: Fully supported (default GitHub Actions environment)
+- **Windows runners**: Requires Docker to be installed (e.g., Docker Desktop, Rancher Desktop)
+- **macOS runners**: Requires Docker to be installed
+
+### Windows Runner Setup
+
+To use this action on Windows runners, ensure Docker is available:
+
+```yaml
+jobs:
+  commit-changes:
+    runs-on: windows-latest
+    steps:
+      - name: Setup Docker (if needed)
+        # Most GitHub-hosted Windows runners have Docker pre-installed
+        # For self-hosted runners, ensure Docker Desktop is installed
+        
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Commit and push changes
+        uses: devops-infra/action-commit-push@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          commit_message: "Cross-platform commit from Windows"
+```
+
+### Note
+The action automatically detects the platform and uses Docker accordingly. On all platforms, it runs the same containerized environment to ensure consistent behavior.
 
 
 ## Examples
