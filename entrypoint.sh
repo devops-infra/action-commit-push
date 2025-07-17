@@ -99,7 +99,7 @@ fi
 
 # Push
 if [[ "${INPUT_FORCE}" == "true" ]]; then
-  echo "[INFO] Force pushing changes without lease"
+  echo "[INFO] Force pushing changes using --force"
   git push --force origin "${BRANCH}"
 elif [[ "${INPUT_FORCE_WITH_LEASE}" == "true" ]]; then
   echo "[INFO] Force pushing changes with lease"
