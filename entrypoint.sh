@@ -11,7 +11,7 @@ echo "  amend:               ${INPUT_AMEND}"
 echo "  commit_prefix:       ${INPUT_COMMIT_PREFIX}"
 echo "  commit_message:      ${INPUT_COMMIT_MESSAGE}"
 echo "  force:               ${INPUT_FORCE}"
-echo "  force_without_lease: ${INPUT_FORCE_WITHOUT_LEASE}"
+echo "  force_with_lease:    ${INPUT_FORCE_WITH_LEASE}"
 echo "  no_edit:             ${INPUT_NO_EDIT}"
 echo "  organization_domain: ${INPUT_ORGANIZATION_DOMAIN}"
 echo "  target_branch:       ${INPUT_TARGET_BRANCH}"
@@ -61,29 +61,50 @@ fi
 # Create an auto commit
 COMMIT_PARAMS=()
 COMMIT_PARAMS+=("--allow-empty")
-if [[ -n ${FILES_CHANGED} ]]; then
-  echo "[INFO] Committing changes."
+
+# Commit if there are changes OR if we're amending (even without changes)
+if [[ -n ${FILES_CHANGED} || "${INPUT_AMEND}" == "true" ]]; then
+  if [[ -n ${FILES_CHANGED} ]]; then
+    echo "[INFO] Committing changes."
+  fi
+  
   if [[ "${INPUT_AMEND}" == "true" ]]; then
     COMMIT_PARAMS+=("--amend")
+    echo "[INFO] Amending previous commit."
   fi
+  
   if [[ "${INPUT_NO_EDIT}" == "true" ]]; then
     COMMIT_PARAMS+=("--no-edit")
+    echo "[INFO] Using existing commit message (--no-edit)."
     git commit "${COMMIT_PARAMS[@]}"
   elif [[ -n "${INPUT_COMMIT_MESSAGE}" || -n "${INPUT_COMMIT_PREFIX}" ]]; then
-    git commit "${COMMIT_PARAMS[@]}" -am "${INPUT_COMMIT_PREFIX}${INPUT_COMMIT_MESSAGE}" -m "$(echo -e "Files changed:\n${FILES_CHANGED}")"
-  else
+    COMMIT_MESSAGE="${INPUT_COMMIT_PREFIX}${INPUT_COMMIT_MESSAGE}"
+    if [[ "${INPUT_AMEND}" == "true" ]]; then
+      echo "[INFO] Setting new commit message: ${COMMIT_MESSAGE}"
+    fi
+    
+    if [[ -n ${FILES_CHANGED} ]]; then
+      git commit "${COMMIT_PARAMS[@]}" -am "${COMMIT_MESSAGE}" -m "$(echo -e "Files changed:\n${FILES_CHANGED}")"
+    else
+      git commit "${COMMIT_PARAMS[@]}" -m "${COMMIT_MESSAGE}"
+    fi
+  elif [[ -n ${FILES_CHANGED} ]]; then
     git commit "${COMMIT_PARAMS[@]}" -am "Files changed:" -m "${FILES_CHANGED}"
+  else
+    # Amending without files changed and no new message - keep existing message
+    COMMIT_PARAMS+=("--no-edit")
+    git commit "${COMMIT_PARAMS[@]}"
   fi
 fi
 
 # Push
-if [[ "${INPUT_FORCE_WITHOUT_LEASE}" == "true" ]]; then
-  echo "[INFO] Force pushing changes without lease"
+if [[ "${INPUT_FORCE}" == "true" ]]; then
+  echo "[INFO] Force pushing changes using --force"
   git push --force origin "${BRANCH}"
-elif [[ "${INPUT_FORCE}" == "true" ]]; then
+elif [[ "${INPUT_FORCE_WITH_LEASE}" == "true" ]]; then
   echo "[INFO] Force pushing changes with lease"
   git push --force-with-lease origin "${BRANCH}"
-elif [[ -n ${FILES_CHANGED} ]]; then
+elif [[ -n ${FILES_CHANGED} || "${INPUT_AMEND}" == "true" ]]; then
   echo "[INFO] Pushing changes"
   git push origin "${BRANCH}"
 fi
