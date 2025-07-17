@@ -46,33 +46,3 @@ jobs:
           password: ${{ secrets.DOCKER_TOKEN }}
           repository: ${{ vars.DOCKER_ORG_NAME }}/${{ github.event.repository.name }}
           short-description: ${{ github.event.repository.description }}
-
-  update_action_yml:
-    name: Update action.yml with new version
-    needs: build_and_push
-    runs-on: ubuntu-24.04-arm
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract version from tag
-        id: version
-        run: |
-          VERSION=${GITHUB_REF#refs/tags/}
-          echo "version=${VERSION}" >> $GITHUB_OUTPUT
-          echo "Version: ${VERSION}"
-
-      - name: Update action.yml with new version
-        run: |
-          VERSION=${{ steps.version.outputs.version }}
-          sed -i "s|image: docker://devopsinfra/action-commit-push:.*|image: docker://devopsinfra/action-commit-push:${VERSION}|" action.yml
-          git diff action.yml
-
-      - name: Commit updated action.yml
-        uses: ./
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          commit_message: "Update action.yml to use release version ${{ steps.version.outputs.version }}"
-          amend: false

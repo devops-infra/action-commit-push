@@ -44,16 +44,15 @@ This repository uses a comprehensive GitHub Actions setup with different workflo
 
 **Purpose**: Production deployment
 - ✅ Build multi-architecture Docker images (amd64, arm64)
-- ✅ Push images to Docker Hub with release version tag
+- ✅ Push images to Docker Hub with release version tag and `latest`
 - ✅ Push images to GitHub Container Registry
 - ✅ Update Docker Hub description
-- ✅ Update `action.yml` with new image version
 
 **Release Process**:
 1. Create GitHub release with version tag (e.g., `v0.11.0`)
 2. Workflow automatically builds and pushes Docker images
-3. Images are tagged with the release version
-4. `action.yml` is updated to reference the new version
+3. Images are tagged with both the release version and `latest`
+4. Action uses `latest` tag, so new releases are immediately available
 
 ### 4. CRON.yml
 **Trigger**: Weekly schedule (Sundays at 5:00 AM UTC)

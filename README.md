@@ -214,25 +214,27 @@ This action follows a **release-based Docker image deployment strategy**:
 1. Create a new GitHub release with a version tag (e.g., `v0.11.0`)
 2. The release workflow automatically:
    - Builds multi-architecture Docker images (`amd64`, `arm64`)
-   - Pushes images to Docker Hub with the release version tag
-   - Updates the `action.yml` file to reference the new Docker image version
+   - Pushes images to Docker Hub with both the release version tag and `latest` tag
    - Updates Docker Hub description
 
-### 🧪 Testing with Test Branches
+**📌 Note**: The action uses the `latest` tag by default, so new releases are automatically available to all users. For users who want to pin to specific versions, they can reference the exact version tag (e.g., `@v0.11.0`).
 
-For testing changes before creating a release:
+## 🎯 Version Usage Options
 
-1. Create a branch starting with `test/` (e.g., `test/new-feature`)
-2. Push your changes to this branch
-3. The workflow automatically builds and pushes Docker images with `test-` prefix
-4. Use the test image in other workflows: `devopsinfra/action-commit-push:test-latest`
+You can use this action in different ways depending on your needs:
 
-**This ensures that:**
-- ✅ Master branch merges don't accidentally publish untested images
-- ✅ Test branches provide safe testing environments
-- ✅ Only stable, released versions are available on Docker Hub
-- ✅ Users can pin to specific, tested versions
-- ✅ Development and testing don't interfere with production images
+### 🔄 Latest Version (Recommended)
+```yaml
+- uses: devops-infra/action-commit-push@master
+```
+Always uses the latest release. Automatically gets new features and fixes.
+
+### 📌 Pinned Version (Stable)
+```yaml
+- uses: devops-infra/action-commit-push@v0.11.0
+```
+Uses a specific version. More predictable but requires manual updates.
+
 
 ## ⚠️ Force Push Options
 
