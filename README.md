@@ -217,7 +217,24 @@ This action follows a **release-based Docker image deployment strategy**:
    - Pushes images to Docker Hub with both the release version tag and `latest` tag
    - Updates Docker Hub description
 
+### 🧪 Testing with Test Branches
+
+For testing changes before creating a release:
+
+1. Create a branch starting with `test/` (e.g., `test/new-feature`)
+2. Push your changes to this branch
+3. The workflow automatically builds and pushes Docker images with `test-` prefix
+4. Use the test image in other workflows: `devopsinfra/action-commit-push:test-latest`
+
+**This ensures that:**
+- ✅ Master branch merges don't accidentally publish untested images
+- ✅ Test branches provide safe testing environments
+- ✅ Only stable, released versions are available on Docker Hub
+- ✅ Users can pin to specific, tested versions
+- ✅ Development and testing don't interfere with production images
+
 **📌 Note**: The action uses the `latest` tag by default, so new releases are automatically available to all users. For users who want to pin to specific versions, they can reference the exact version tag (e.g., `@v0.11.0`).
+
 
 ## 🎯 Version Usage Options
 
