@@ -11,7 +11,7 @@ inputs:
     required: false
     default: "false"
   amend:
-    description: Whether to make amendment to the previous commit
+    description: Whether to make amendment to the previous commit (--amend). Can be combined with commit_message to change the message.
     required: false
     default: "false"
   commit_prefix:
@@ -23,11 +23,11 @@ inputs:
     required: false
     default: ""
   force:
-    description: Whether to force push
+    description: Whether to use force push (--force). Use only when you need to overwrite remote changes. Potentially dangerous.
     required: false
     default: "false"
-  force_without_lease:
-    description: Whether to force push without lease (--force instead of --force-with-lease)
+  force_with_lease:
+    description: Whether to use force push with lease (--force-with-lease). Safer than force as it checks for remote changes.
     required: false
     default: "false"
   no_edit:

@@ -2,7 +2,7 @@
 phony: help
 
 # Release tag for the action
-VERSION := v0.10.0
+VERSION := $(or $(VERSION),v0.11.0)
 
 # GitHub Actions bogus variables
 GITHUB_REF ?= refs/heads/null

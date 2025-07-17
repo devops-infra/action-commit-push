@@ -1,4 +1,4 @@
-name: Weekly build
+name: Weekly test build & push
 
 on:
   schedule:
@@ -6,8 +6,8 @@ on:
     - cron: "0 5 */7 * *"
 
 jobs:
-  build_and_push:
-    name: Build & push
+  build_and_push_test:
+    name: Weekly test build & push
     runs-on: ubuntu-24.04-arm
     steps:
       - name: Checkout
@@ -24,7 +24,7 @@ jobs:
           image: tonistiigi/binfmt:latest
           platforms: amd64,arm64
 
-      - name: Build & push
+      - name: Build & push test image
         env:
           DOCKER_BUILDKIT: 1
           DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
