@@ -1,12 +1,87 @@
 name: Release
 
+# Trigger on pushes to release/vX.Y.Z branches to create release PRs
+# Trigger on PR merges from release/vX.Y.Z branches to publish release images
 on:
-  release:
-    types: [published]
+  push:
+    branches:
+      - 'release/v*'
+  pull_request:
+    types: [closed]
+    branches:
+      - master
 
 jobs:
-  build_and_push:
-    name: Build & push release
+  create_release_pr:
+    name: Create Release PR
+    # Only run on push to release/vX.Y.Z branches
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release/v')
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version from branch name
+        id: version
+        run: |
+          BRANCH_NAME=${GITHUB_REF#refs/heads/}
+          VERSION=${BRANCH_NAME#release/}
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "branch=${BRANCH_NAME}" >> $GITHUB_OUTPUT
+          echo "Version: ${VERSION}"
+          echo "Branch: ${BRANCH_NAME}"
+
+      - name: Update action.yml with new version
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          sed -i "s|image: docker://devopsinfra/action-commit-push:.*|image: docker://devopsinfra/action-commit-push:${VERSION}|" action.yml
+          echo "Updated action.yml to use version: ${VERSION}"
+
+      - name: Update Makefile with new version
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          # Update the fallback version in Makefile
+          sed -i "s|echo \"v[0-9]\+\.[0-9]\+\.[0-9]\+\"|echo \"${VERSION}\"|" Makefile
+          echo "Updated Makefile fallback version to: ${VERSION}"
+
+      - name: Create Release Pull Request
+        uses: peter-evans/create-pull-request@v7.0.5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Update version to ${{ steps.version.outputs.version }} in action.yml and Makefile"
+          title: "🚀 Release ${{ steps.version.outputs.version }}"
+          body: |
+            ## Release ${{ steps.version.outputs.version }}
+            
+            This PR prepares a new release version ${{ steps.version.outputs.version }}.
+            
+            ### Changes in this release
+            - Updated `action.yml` to reference Docker image `${{ steps.version.outputs.version }}`
+            - Updated `Makefile` fallback version to `${{ steps.version.outputs.version }}`
+            
+            ### What happens when this PR is merged?
+            1. ✅ Docker images will be built and pushed to Docker Hub and GitHub Packages
+            2. ✅ A GitHub release will be created with tag `${{ steps.version.outputs.version }}`
+            3. ✅ Docker Hub description will be updated
+            
+            ### Review Checklist
+            - [ ] Version number is correct
+            - [ ] CHANGELOG.md is updated (if applicable)
+            - [ ] Breaking changes are documented
+            - [ ] All tests pass
+            
+            **⚠️ Important:** Once merged, this will immediately publish Docker images to production registries.
+          base: master
+
+  build_and_publish:
+    name: Build & Publish Release
+    # Only run when PR from release/vX.Y.Z branch is merged to master
+    if: |
+      github.event_name == 'pull_request' && 
+      github.event.pull_request.merged == true && 
+      startsWith(github.event.pull_request.head.ref, 'release/v')
     runs-on: ubuntu-24.04-arm
     steps:
       - name: Checkout
@@ -23,10 +98,11 @@ jobs:
           image: tonistiigi/binfmt:latest
           platforms: amd64,arm64
 
-      - name: Extract version from tag
+      - name: Extract version from PR branch
         id: version
         run: |
-          VERSION=${GITHUB_REF#refs/tags/}
+          BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
+          VERSION=${BRANCH_NAME#release/}
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "Version: ${VERSION}"
 
@@ -39,6 +115,32 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
         run: make push
 
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2.0.8
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: Release ${{ steps.version.outputs.version }}
+          body: |
+            ## Release ${{ steps.version.outputs.version }}
+            
+            This release was automatically created after merging the release PR.
+            
+            ### Docker Images
+            - **Docker Hub:** `devopsinfra/action-commit-push:${{ steps.version.outputs.version }}`
+            - **GitHub Packages:** `ghcr.io/devops-infra/action-commit-push:${{ steps.version.outputs.version }}`
+            
+            Both images are built for `amd64` and `arm64` architectures.
+            
+            ### Usage
+            ```yaml
+            - uses: devops-infra/action-commit-push@${{ steps.version.outputs.version }}
+            ```
+            
+            For full documentation, see the [README](https://github.com/devops-infra/action-commit-push#readme).
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+
       - name: Docker Hub Description
         uses: peter-evans/dockerhub-description@v4.0.2
         with:
@@ -46,3 +148,8 @@ jobs:
           password: ${{ secrets.DOCKER_TOKEN }}
           repository: ${{ vars.DOCKER_ORG_NAME }}/${{ github.event.repository.name }}
           short-description: ${{ github.event.repository.description }}
+
+      - name: Clean up release branch
+        run: |
+          # Delete the release branch since it's now merged
+          git push origin --delete ${{ github.event.pull_request.head.ref }} || true

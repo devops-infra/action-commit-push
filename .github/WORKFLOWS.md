@@ -1,6 +1,13 @@
 # GitHub Actions Workflows Documentation
 
-This repository uses a comprehensive GitHub Actions setup with different workflows for different purposes.
+This repository us**Purpose**: Fully automated release creation with zero manual intervention
+- ✅ Detects when releases are needed (new commits to master, excluding docs/deps)
+- ✅ Analyzes commit messages for semantic versioning
+- ✅ Calculates next version automatically (major/minor)
+- ✅ Creates release branches with version updates using own action
+- ✅ Relies on PUSH-OTHER.yml for PR creation
+- ✅ Supports manual triggering for custom releases
+- ✅ Skips releases for documentation and dependency updatesmprehensive GitHub Actions setup with different workflows for different purposes.
 
 ## Workflow Overview
 
@@ -24,37 +31,69 @@ This repository uses a comprehensive GitHub Actions setup with different workflo
 - ✅ Update repository labels (dry run)
 - ✅ Run Hadolint linting on Dockerfile
 - ✅ Build Docker image (test only for regular branches)
-- ✅ Build & push test Docker images for `test/*` branches
+- ✅ Build & push test Docker images for `test*` branches
 - ✅ Create Pull Requests based on branch naming conventions
 
 **Special handling for test branches**:
-- Branches starting with `test/` → Build and push Docker images with `test-` prefix
+- Branches starting with `test` → Build and push Docker images with `test-` prefix
 - Other branches → Build test only (no push)
 
 **Branch naming conventions for auto-PR creation**:
-- `bug/*` → Creates PR with "bugfix" label
-- `dep/*` → Creates PR with "dependency" label  
-- `doc/*` → Creates PR with "documentation" label
-- `feat/*` → Creates PR with "feature" label
-- `test/*` → Creates draft PR with "test" label + pushes test Docker images
+- `bug*` → Creates PR with "bugfix" label
+- `dep*` → Creates PR with "dependency" label  
+- `doc*` → Creates PR with "documentation" label
+- `feat*` → Creates PR with "feature" label
+- `test*` → Creates draft PR with "test" label + pushes test Docker images
 - Other branches → Creates PR with "feature" label
 
 ### 3. RELEASE.yml
-**Trigger**: GitHub release published
+**Trigger**: 
+- Push to `release/vX.Y.Z` branches (creates release PR)
+- Pull request merge from `release/vX.Y.Z` branches to master (publishes release)
 
-**Purpose**: Production deployment
-- ✅ Build multi-architecture Docker images (amd64, arm64)
+**Purpose**: Handle release branch workflows and Docker image publishing
+- ✅ Create release PRs with version updates when pushing to `release/vX.Y.Z` branches
+- ✅ Build multi-architecture Docker images (amd64, arm64) when release PRs are merged
 - ✅ Push images to Docker Hub with release version tag and `latest`
 - ✅ Push images to GitHub Container Registry
+- ✅ Create GitHub release with version tag
 - ✅ Update Docker Hub description
+- ✅ Clean up release branch after merge
 
-**Release Process**:
-1. Create GitHub release with version tag (e.g., `v0.11.0`)
-2. Workflow automatically builds and pushes Docker images
-3. Images are tagged with both the release version and `latest`
-4. Action uses `latest` tag, so new releases are immediately available
+### 4. AUTO-VERSION.yml
+**Trigger**: 
+- Push to `master` branch (automatic)
+- Manual workflow dispatch (optional)
 
-### 4. CRON.yml
+**Purpose**: Fully automated release creation with zero manual intervention
+- ✅ Detects when releases are needed (new commits to master)
+- ✅ Analyzes commit messages for semantic versioning
+- ✅ Calculates next version automatically (major/minor/patch)
+- ✅ Creates release branches with version updates
+- ✅ Opens detailed release PRs
+- ✅ Supports manual triggering for custom releases
+
+**Automated Release Process**:
+1. New commits pushed to master (excluding docs/dependencies)
+2. System analyzes merged branch names and commit messages:
+   - Merged from "feat" branches → major version (v0.10.2 → v0.11.0)
+   - Other changes → minor version (v0.10.2 → v0.10.3)
+3. Automatically creates `release/vX.Y.Z` branch using own action
+4. Updates version in `action.yml` and `Makefile`
+5. PUSH-OTHER.yml workflow creates PR automatically
+6. When merged → triggers RELEASE.yml workflow for publishing
+
+### 5. AUTO-RELEASE.yml
+**Trigger**: Manual workflow dispatch only
+
+**Purpose**: Manual release creation with version input
+- ✅ Allows manual specification of release version
+- ✅ Supports minor/major release types
+- ✅ Creates release branches using own action
+- ✅ Relies on PUSH-OTHER.yml for PR creation
+- ✅ Validates version format and availability
+
+### 6. CRON.yml
 **Trigger**: Weekly schedule (Sundays at 5:00 AM UTC)
 
 **Purpose**: Weekly health check and test image refresh
@@ -84,13 +123,23 @@ This repository uses a comprehensive GitHub Actions setup with different workflo
 ### Development Flow
 1. Create feature branch with appropriate naming convention
 2. Push changes → Triggers build test and auto-PR creation
-3. Review and merge PR to master → Triggers master build test
-4. Create GitHub release → Triggers production deployment
+3. Review and merge PR to master → Triggers automatic release detection
+4. System automatically creates release (if new commits warrant it)
+5. Review and merge release PR → Triggers production deployment
 
 ### Production Deployment
-- Only happens on GitHub releases
-- Ensures only tested, reviewed code reaches production
-- Automatic versioning and tagging
-- Docker Hub and GitHub Container Registry deployment
+- **Fully automated**: No manual release creation needed
+- **Smart detection**: Only releases when there are actual changes
+- **Semantic versioning**: Automatic version calculation from commit messages
+- **Safe process**: Release PRs provide review opportunity before publishing
+- **GitHub release creation**: Automated with release notes
+- **Docker Hub and GitHub Container Registry**: Automatic multi-architecture deployment
 
-This setup ensures a safe, automated, and well-tested deployment pipeline while maintaining development velocity.
+### Release Automation Strategy
+- **Zero manual work**: Push to master → automatic release detection → release PR → merge → publish
+- **Semantic commits**: Commit message analysis determines version type
+- **Branch protection**: All releases go through PR review process
+- **Failsafe mechanisms**: Version validation, duplicate prevention, format checking
+- **Clean automation**: Automatic branch cleanup and proper tagging
+
+This setup provides **complete automation** while maintaining safety through the PR review process. No manual release management required!
