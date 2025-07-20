@@ -1,6 +1,6 @@
 # GitHub Actions Workflows Documentation
 
-This repository us**Purpose**: Fully automated release creation with zero manual intervention
+This repository uses: Fully automated release creation with zero manual intervention
 - ✅ Detects when releases are needed (new commits to master, excluding docs/deps)
 - ✅ Analyzes commit messages for semantic versioning
 - ✅ Calculates next version automatically (major/minor)
