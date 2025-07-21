@@ -216,8 +216,8 @@ This action follows a **fully automated release workflow** with zero manual inte
 
 1. **Detects when a release is needed** (new commits to master, excluding docs/dependencies)
 2. **Determines version type** from merged branch names and commit messages:
-   - `major`: Merges from `feat*` branches or "feat:" in commits (v0.10.2 → v0.11.0)
-   - `minor`: All other changes (v0.10.2 → v0.10.3)
+   - `minor`: Merges from `feat*` branches or "feat:" in commits (v0.10.2 → v0.10.3)
+   - `patch`: All other changes (v0.10.2 → v0.10.4)
 3. **Calculates next version** using semantic versioning
 4. **Creates release branch** with version updates using own action
 5. **PUSH-OTHER.yml creates the PR** automatically 
