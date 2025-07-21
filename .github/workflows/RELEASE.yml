@@ -152,9 +152,9 @@ jobs:
       - name: Clean up release branch
         run: |
           # Check if the release branch exists before attempting to delete it
-          if git ls-remote --exit-code origin ${{ github.event.pull_request.head.ref }}; then
-            echo "Deleting branch ${{ github.event.pull_request.head.ref }}..."
-            git push origin --delete ${{ github.event.pull_request.head.ref }}
+          if git ls-remote --exit-code origin "${{ github.event.pull_request.head.ref }}"; then
+            echo "Deleting branch \"${{ github.event.pull_request.head.ref }}\"..."
+            git push origin --delete "${{ github.event.pull_request.head.ref }}"
           else
             echo "Branch ${{ github.event.pull_request.head.ref }} does not exist. Skipping deletion."
           fi
