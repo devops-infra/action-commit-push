@@ -61,7 +61,11 @@ jobs:
           echo "$MERGED_BRANCHES"
           
           # Also check commit messages for manual detection
-          COMMIT_MESSAGES=$(git log ${LATEST_TAG}..HEAD --pretty=format:"%s" --max-count=50 || git log --pretty=format:"%s" --max-count=50)
+          COMMIT_MESSAGES=$(git log ${LATEST_TAG}..HEAD --pretty=format:"%s" --max-count=50)
+          if [ $? -ne 0 ]; then
+            echo "Error: Failed to retrieve commit messages for range ${LATEST_TAG}..HEAD" >&2
+            exit 1
+          fi
           echo "Commit messages:"
           echo "$COMMIT_MESSAGES"
           
