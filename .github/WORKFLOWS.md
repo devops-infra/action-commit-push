@@ -77,7 +77,7 @@ This repository uses: Fully automated release creation with zero manual interven
 1. New commits pushed to master (excluding docs/dependencies)
 2. System analyzes merged branch names and commit messages:
    - Merged from "feat" branches → minor version (v0.10.2 → v0.11.0)
-   - Other changes → minor version (v0.10.2 → v0.10.3)
+   - Other changes → patch version (v0.10.2 → v0.10.3)
 3. Automatically creates `release/vX.Y.Z` branch using own action
 4. Updates version in `action.yml` and `Makefile`
 5. PUSH-OTHER.yml workflow creates PR automatically
