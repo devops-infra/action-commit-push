@@ -70,7 +70,7 @@ jobs:
           echo "$COMMIT_MESSAGES"
           
           # Skip release for dependency and docs updates
-          if echo "$MERGED_BRANCHES" | grep -i "^dep\|^dependabot\|^docs\|/dep\|/docs"; then
+          if echo "$MERGED_BRANCHES" | grep -iE "^dep|^dependabot|^docs|/dep|/docs"; then
             echo "Skipping release for dependency/docs updates"
             echo "should_release=false" >> $GITHUB_OUTPUT
             exit 0
