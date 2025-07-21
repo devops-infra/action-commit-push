@@ -86,7 +86,7 @@ jobs:
           VERSION_TYPE="${{ github.event.inputs.release_type }}"
           if [ "$VERSION_TYPE" = "auto" ] || [ -z "$VERSION_TYPE" ]; then
             # Check for feat branches first (minor version bump - Y)
-            if echo "$MERGED_BRANCHES" | grep -i "^feat\|/feat"; then
+            if echo "$MERGED_BRANCHES" | grep -iE "^feat|/feat"; then
               VERSION_TYPE="minor"
             # Check for feat in commit messages as fallback
             elif echo "$COMMIT_MESSAGES" | grep -i "^feat\|feat:"; then
