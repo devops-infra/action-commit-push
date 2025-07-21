@@ -6,6 +6,7 @@
 - **Force behavior updated**: `force: true` now uses `git push --force` (breaking change)
 - **New parameter**: `force_with_lease` for safer force pushing with `--force-with-lease`  
 - **Amend improvements**: Can now combine `amend: true` with `commit_message` to change commit messages
+- **Release process**: Fully automated releases - zero manual work required!
 
 A powerful GitHub Action for automatically committing and pushing changes back to your repository. Perfect for automation workflows and integrates seamlessly with [devops-infra/action-pull-request](https://github.com/devops-infra/action-pull-request).
 
@@ -201,26 +202,88 @@ When using `amend: true`, you have several options for handling the commit messa
 
 ## 🚀 Release Process
 
-This action follows a **release-based Docker image deployment strategy**:
+This action follows a **fully automated release workflow** with zero manual intervention:
 
 - **Development branches**: Only build and test Docker images (no push to Docker Hub)
 - **Test branches (`test/*`)**: Build and push Docker images with `test-` prefix for integration testing
 - **Master branch**: Only build and test Docker images (no push to Docker Hub)
-- **Releases**: Docker images are built and pushed to Docker Hub only when a new GitHub release is created
+- **Automatic releases**: Triggered by pushes to master - no manual steps required!
 - **Weekly builds**: Automated test builds run weekly and push test images
 
-### 🏷️ Creating a New Release
+### 🤖 Fully Automated Releases
 
-1. Create a new GitHub release with a version tag (e.g., `v0.11.0`)
-2. The release workflow automatically:
-   - Builds multi-architecture Docker images (`amd64`, `arm64`)
-   - Pushes images to Docker Hub with the release version tag
-   - Updates the `action.yml` file to reference the new Docker image version
-   - Updates Docker Hub description
+**No manual work required!** The system automatically:
+
+1. **Detects when a release is needed** (new commits to master, excluding docs/dependencies)
+2. **Determines version type** from merged branch names and commit messages:
+   - `minor`: Merges from `feat*` branches or "feat:" in commits (v0.10.2 → v0.11.0)
+   - `patch`: All other changes (v0.10.2 → v0.10.3)
+3. **Calculates next version** using semantic versioning
+4. **Creates release branch** with version updates using own action
+5. **PUSH-OTHER.yml creates the PR** automatically
+6. **Publishes when PR is merged** - Docker images, GitHub release, etc.
+
+### 🚫 **Smart Release Filtering**
+
+The system **skips releases** for:
+- Documentation updates (`docs*` branches, `docs:` commits)
+- Dependency updates (`dep*`, `dependabot/*` branches, `dep:` commits)
+- README and other markdown file changes
+- License updates
+
+### 🎯 Manual Release Trigger (Optional)
+
+You can also trigger releases manually via GitHub Actions UI:
+
+1. Go to **Actions** → **Auto-Version Release** → **Run workflow**
+2. Choose release type: "minor" or "major" (or leave as "auto" for detection)
+3. Click **Run workflow**
+4. System handles the rest automatically!
+
+### 📝 Commit Message Conventions
+
+To help with automatic version detection, use these patterns:
+
+```bash
+# Patch version (v0.10.2 → v0.10.3) - Most common
+git commit -m "fix: resolve issue with force push"
+git commit -m "docs: update README"
+git commit -m "refactor: improve code structure"
+
+# Minor version (v0.10.2 → v0.11.0) - Feature branches or feat commits
+# Create feature branch:
+git checkout -b feat/new-functionality
+git commit -m "add new amend functionality"
+# OR use feat prefix in commits:
+git commit -m "feat: add new amend functionality"
+```
+
+### 🌿 Branch-Based Version Detection
+
+The system prioritizes **branch names** for version detection:
+
+- **`feat/*` branches** → **Minor version bump** (v0.10.2 → v0.11.0)
+  ```bash
+  git checkout -b feat/new-feature
+  # When merged to master → minor version bump
+  ```
+
+- **Other branches** → **Patch version bump** (v0.10.2 → v0.10.3)
+  ```bash
+  git checkout -b fix/bug-fix
+  git checkout -b docs/update-readme
+  git checkout -b refactor/cleanup
+  # When merged to master → patch version bump
+  ```
+
+**🔢 Major Version Handling**
+- **Major versions** (X in vX.Y.Z) are only incremented manually
+- Use **Actions** → **Auto-Release** → **Run workflow** and select "major"
+- This is reserved for breaking changes or significant API changes
 
 ### 🧪 Testing with Test Branches
 
-For testing changes before creating a release:
+For testing changes before they reach master:
 
 1. Create a branch starting with `test/` (e.g., `test/new-feature`)
 2. Push your changes to this branch
@@ -228,11 +291,31 @@ For testing changes before creating a release:
 4. Use the test image in other workflows: `devopsinfra/action-commit-push:test-latest`
 
 **This ensures that:**
-- ✅ Master branch merges don't accidentally publish untested images
-- ✅ Test branches provide safe testing environments
-- ✅ Only stable, released versions are available on Docker Hub
-- ✅ Users can pin to specific, tested versions
-- ✅ Development and testing don't interfere with production images
+- ✅ Zero manual release work - everything is automated
+- ✅ Semantic versioning based on branch names and commit messages
+- ✅ Test branches provide safe testing environments  
+- ✅ Only reviewed master commits trigger releases
+- ✅ Docker images published only after PR review
+- ✅ No human errors in version management
+
+**📌 Note**: The action references specific versions in `action.yml` for stability, and the release process keeps these up-to-date automatically.
+
+## 🎯 Version Usage Options
+
+You can use this action in different ways depending on your needs:
+
+### 🔄 Latest Version (Recommended)
+```yaml
+- uses: devops-infra/action-commit-push@master
+```
+Always uses the latest release. Automatically gets new features and fixes.
+
+### 📌 Pinned Version (Stable)
+```yaml
+- uses: devops-infra/action-commit-push@v0.11.0
+```
+Uses a specific version. More predictable but requires manual updates.
+
 
 ## ⚠️ Force Push Options
 

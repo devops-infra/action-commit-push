@@ -41,7 +41,7 @@ jobs:
 
   build_test:
     name: Build test
-    if: ${{ !startsWith(github.ref, 'refs/heads/dependabot') && !startsWith(github.ref, 'refs/heads/test/') }}
+    if: ${{ !startsWith(github.ref, 'refs/heads/dependabot') && !startsWith(github.ref, 'refs/heads/test') && !startsWith(github.ref, 'refs/heads/release') }}
     runs-on: ubuntu-24.04-arm
     steps:
       - name: Checkout
@@ -66,7 +66,7 @@ jobs:
 
   build_and_push_test:
     name: Build & push test image
-    if: ${{ startsWith(github.ref, 'refs/heads/test/') }}
+    if: ${{ startsWith(github.ref, 'refs/heads/test') }}
     runs-on: ubuntu-24.04-arm
     steps:
       - name: Checkout
@@ -93,6 +93,7 @@ jobs:
 
   pull_request:
     name: Create Pull Request
+    if: ${{ !startsWith(github.ref, 'refs/heads/release') }}
     runs-on: ubuntu-24.04-arm
     steps:
       - name: Checkout
