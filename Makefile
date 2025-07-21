@@ -2,7 +2,7 @@
 phony: help
 
 # Release tag for the action - use environment variable or fall back to latest git tag
-VERSION := $(or $(VERSION),$(shell git describe --tags --abbrev=0 2>/dev/null || echo "v0.11.0"))
+VERSION := $(or $(VERSION),$(shell git describe --tags --abbrev=0 2>/dev/null || echo "v0.11.1"))
 
 # GitHub Actions bogus variables
 GITHUB_REF ?= refs/heads/null
