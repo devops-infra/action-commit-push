@@ -61,7 +61,7 @@ jobs:
           echo "$MERGED_BRANCHES"
           
           # Also check commit messages for manual detection
-          COMMIT_MESSAGES=$(git log ${LATEST_TAG}..HEAD --pretty=format:"%s" || git log --pretty=format:"%s")
+          COMMIT_MESSAGES=$(git log ${LATEST_TAG}..HEAD --pretty=format:"%s" --max-count=50 || git log --pretty=format:"%s" --max-count=50)
           echo "Commit messages:"
           echo "$COMMIT_MESSAGES"
           
