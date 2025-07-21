@@ -7,8 +7,9 @@ This repository uses: Fully automated release creation with zero manual interven
 - ✅ Creates release branches with version updates using own action
 - ✅ Relies on PUSH-OTHER.yml for PR creation
 - ✅ Supports manual triggering for custom releases
-- ✅ Skips releases for documentation and dependency updatesmprehensive GitHub Actions setup with different workflows for different purposes.
+- ✅ Skips releases for documentation and dependency updates
 
+This repository uses a comprehensive GitHub Actions setup with different workflows for different purposes.
 ## Workflow Overview
 
 ### 1. PUSH-MASTER.yml
