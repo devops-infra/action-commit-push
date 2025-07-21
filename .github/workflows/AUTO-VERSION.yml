@@ -71,8 +71,8 @@ jobs:
             echo "should_release=false" >> $GITHUB_OUTPUT
             exit 0
           fi
-          
-          if echo "$COMMIT_MESSAGES" | grep -i "^dep:\|^docs:\|dependabot\|dependencies"; then
+
+          if echo "$COMMIT_MESSAGES" | grep -i "^dep:\|^docs:\|^dependencies:\|^dependency:\"; then
             echo "Skipping release for dependency/docs commits"
             echo "should_release=false" >> $GITHUB_OUTPUT
             exit 0
