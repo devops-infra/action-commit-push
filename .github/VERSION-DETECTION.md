@@ -4,7 +4,7 @@ This file demonstrates how the automated version detection works with different 
 
 ## Branch-Based Version Detection
 
-### ✅ Major Version Bump (v0.10.2 → v0.11.0)
+### ✅ Minor Version Bump (v0.10.2 → v0.11.0)
 **Trigger**: Merging from `feat*` branches
 
 ```bash
@@ -16,10 +16,10 @@ git commit -m "add user profile management"
 git push origin feat/new-user-authentication
 
 # Create PR and merge to master
-# Result: Automatic major version bump v0.10.2 → v0.11.0
+# Result: Automatic minor version bump v0.10.2 → v0.11.0
 ```
 
-### ✅ Minor Version Bump (v0.10.2 → v0.10.3)  
+### ✅ Patch Version Bump (v0.10.2 → v0.10.3)  
 **Trigger**: Merging from any other branch
 
 ```bash
@@ -46,24 +46,25 @@ The system checks in this order:
 1. **Feature branches** (highest priority)
    - Checks merged branch names for `feat*` pattern
    - Also checks commit messages for `feat:` prefix
-   - Results in major version bump
+   - Results in minor version bump (Y)
 
 2. **Everything else** (default)
    - All other branch merges and commits
-   - Results in minor version bump
+   - Results in patch version bump (Z)
 
 ## Example Scenarios
 
 | Branch Name | Commit Message | Version Change | Reason |
 |-------------|----------------|----------------|---------|
-| `feat/auth` | "add login system" | v0.10.2 → v0.11.0 | feat branch |
-| `fix/bug` | "fix: resolve crash" | v0.10.2 → v0.10.3 | non-feat branch |
-| `docs/readme` | "docs: update guide" | v0.10.2 → v0.10.3 | non-feat branch |
-| `fix/bug` | "feat: add new feature" | v0.10.2 → v0.11.0 | feat in commit |
-| `refactor/code` | "refactor: improve structure" | v0.10.2 → v0.10.3 | non-feat branch |
+| `feat/auth` | "add login system" | v0.10.2 → v0.11.0 | feat branch (minor) |
+| `fix/bug` | "fix: resolve crash" | v0.10.2 → v0.10.3 | non-feat branch (patch) |
+| `docs/readme` | "docs: update guide" | v0.10.2 → v0.10.3 | non-feat branch (patch) |
+| `fix/bug` | "feat: add new feature" | v0.10.2 → v0.11.0 | feat in commit (minor) |
+| `refactor/code` | "refactor: improve structure" | v0.10.2 → v0.10.3 | non-feat branch (patch) |
 
 This ensures that:
-- ✅ New features always increment major version (minor number)
-- ✅ Bug fixes and other changes increment minor version (patch number)
+- ✅ New features always increment minor version (Y number)
+- ✅ Bug fixes and other changes increment patch version (Z number)
+- ✅ Major version (X) is only incremented manually
 - ✅ Documentation and dependency updates don't trigger releases
 - ✅ No manual version management needed

@@ -245,12 +245,12 @@ You can also trigger releases manually via GitHub Actions UI:
 To help with automatic version detection, use these patterns:
 
 ```bash
-# Minor version (v0.10.2 → v0.10.3) - Most common
+# Patch version (v0.10.2 → v0.10.3) - Most common
 git commit -m "fix: resolve issue with force push"
 git commit -m "docs: update README"
 git commit -m "refactor: improve code structure"
 
-# Major version (v0.10.2 → v0.11.0) - Feature branches or feat commits
+# Minor version (v0.10.2 → v0.11.0) - Feature branches or feat commits
 # Create feature branch:
 git checkout -b feat/new-functionality
 git commit -m "add new amend functionality"
@@ -262,19 +262,24 @@ git commit -m "feat: add new amend functionality"
 
 The system prioritizes **branch names** for version detection:
 
-- **`feat/*` branches** → **Major version bump** (v0.10.2 → v0.11.0)
+- **`feat/*` branches** → **Minor version bump** (v0.10.2 → v0.11.0)
   ```bash
   git checkout -b feat/new-feature
-  # When merged to master → major version bump
+  # When merged to master → minor version bump
   ```
 
-- **Other branches** → **Minor version bump** (v0.10.2 → v0.10.3)
+- **Other branches** → **Patch version bump** (v0.10.2 → v0.10.3)
   ```bash
   git checkout -b fix/bug-fix
   git checkout -b docs/update-readme
   git checkout -b refactor/cleanup
-  # When merged to master → minor version bump
+  # When merged to master → patch version bump
   ```
+
+**🔢 Major Version Handling**
+- **Major versions** (X in vX.Y.Z) are only incremented manually
+- Use **Actions** → **Auto-Release** → **Run workflow** and select "major"
+- This is reserved for breaking changes or significant API changes
 
 ### 🧪 Testing with Test Branches
 

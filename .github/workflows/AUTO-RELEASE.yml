@@ -10,9 +10,10 @@ on:
       release_type:
         description: 'Type of release'
         required: true
-        default: 'minor'
+        default: 'patch'
         type: choice
         options:
+        - patch
         - minor
         - major
 

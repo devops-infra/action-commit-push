@@ -81,15 +81,15 @@ jobs:
           # Determine version type
           VERSION_TYPE="${{ github.event.inputs.release_type }}"
           if [ "$VERSION_TYPE" = "auto" ] || [ -z "$VERSION_TYPE" ]; then
-            # Check for feat branches first (major version bump)
+            # Check for feat branches first (minor version bump - Y)
             if echo "$MERGED_BRANCHES" | grep -i "^feat\|/feat"; then
-              VERSION_TYPE="major"
+              VERSION_TYPE="minor"
             # Check for feat in commit messages as fallback
             elif echo "$COMMIT_MESSAGES" | grep -i "^feat\|feat:"; then
-              VERSION_TYPE="major"
-            # Everything else is minor
-            else
               VERSION_TYPE="minor"
+            # Everything else is patch (Z)
+            else
+              VERSION_TYPE="patch"
             fi
           fi
           
@@ -104,10 +104,10 @@ jobs:
           
           case $VERSION_TYPE in
             major)
-              NEW_VERSION="v${MAJOR}.$((MINOR + 1)).0"
+              NEW_VERSION="v$((MAJOR + 1)).0.0"
               ;;
             minor)
-              NEW_VERSION="v${MAJOR}.${MINOR}.$((PATCH + 1))"
+              NEW_VERSION="v${MAJOR}.$((MINOR + 1)).0"
               ;;
             patch)
               NEW_VERSION="v${MAJOR}.${MINOR}.$((PATCH + 1))"
@@ -173,8 +173,9 @@ jobs:
             4. 🧹 Release branch automatically cleaned up
             
             🔍 Version Detection Logic
-            - `major`: Merges from feat* branches or feat: in commits (v0.10.2 → v0.11.0)
-            - `minor`: All other changes (v0.10.2 → v0.10.3)
+            - `major`: Manual releases only (v0.10.2 → v1.0.0)
+            - `minor`: Merges from feat* branches or feat: in commits (v0.10.2 → v0.11.0)
+            - `patch`: All other changes (v0.10.2 → v0.10.3)
             
             **This PR is safe to auto-merge - it only contains version updates.**
             
