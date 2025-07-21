@@ -220,7 +220,7 @@ This action follows a **fully automated release workflow** with zero manual inte
    - `patch`: All other changes (v0.10.2 → v0.10.3)
 3. **Calculates next version** using semantic versioning
 4. **Creates release branch** with version updates using own action
-5. **PUSH-OTHER.yml creates the PR** automatically 
+5. **PUSH-OTHER.yml creates the PR** automatically
 6. **Publishes when PR is merged** - Docker images, GitHub release, etc.
 
 ### 🚫 **Smart Release Filtering**
