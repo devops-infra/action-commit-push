@@ -47,7 +47,7 @@ jobs:
           echo "Updated Makefile fallback version to: ${VERSION}"
 
       - name: Create Release Pull Request
-        uses: peter-evans/create-pull-request@v7.0.5
+        uses: peter-evans/create-pull-request@v7.0.8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "Update version to ${{ steps.version.outputs.version }} in action.yml and Makefile"
