@@ -93,7 +93,6 @@ jobs:
 
   pull_request:
     name: Create Pull Request
-    if: ${{ !startsWith(github.ref, 'refs/heads/release') }}
     runs-on: ubuntu-24.04-arm
     steps:
       - name: Checkout
@@ -157,6 +156,16 @@ jobs:
           label: test
           template: .tmp/PULL_REQUEST_TEMPLATE.md
           draft: true
+          get_diff: true
+
+      - name: PR - release (conditional)
+        if: startsWith(github.ref, 'refs/heads/release')
+        uses: devops-infra/action-pull-request@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          assignee: ${{ github.actor }}
+          label: release
+          template: .tmp/PULL_REQUEST_TEMPLATE.md
           get_diff: true
 
       - name: PR - other branches (conditional)
