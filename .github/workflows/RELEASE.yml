@@ -47,10 +47,9 @@ jobs:
           echo "Updated Makefile fallback version to: ${VERSION}"
 
       - name: Create Release Pull Request
-        uses: peter-evans/create-pull-request@v7.0.5
+        uses: devops-infra/action-pull-request@v0.6.0
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "Update version to ${{ steps.version.outputs.version }} in action.yml and Makefile"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           title: "🚀 Release ${{ steps.version.outputs.version }}"
           body: |
             ## Release ${{ steps.version.outputs.version }}
@@ -73,7 +72,9 @@ jobs:
             - [ ] All tests pass
             
             **⚠️ Important:** Once merged, this will immediately publish Docker images to production registries.
-          base: master
+          target_branch: master
+          source_branch: ${{ steps.version.outputs.branch }}
+          label: release
 
   build_and_publish:
     name: Build & Publish Release
