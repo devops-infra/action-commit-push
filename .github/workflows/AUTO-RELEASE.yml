@@ -63,7 +63,7 @@ jobs:
           echo "✅ Updated Makefile fallback version to: ${VERSION}"
 
       - name: Create release branch and commit changes
-        uses: ./
+        uses: devops-infra/action-commit-push@v0.11.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           target_branch: release/${{ github.event.inputs.version }}
