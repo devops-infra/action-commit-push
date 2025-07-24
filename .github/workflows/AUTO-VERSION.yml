@@ -70,14 +70,21 @@ jobs:
           echo "$COMMIT_MESSAGES"
           
           # Skip release for dependency and docs updates
-          if echo "$MERGED_BRANCHES" | grep -iE "^dep|^dependabot|^docs|/dep|/docs"; then
-            echo "Skipping release for dependency/docs updates"
+          if echo "$MERGED_BRANCHES" | grep -iE "^dep|^dependabot|^docs|^release|/dep|/docs|/release"; then
+            echo "Skipping release for dependency/docs/release updates"
             echo "should_release=false" >> $GITHUB_OUTPUT
             exit 0
           fi
 
-          if echo "$COMMIT_MESSAGES" | grep -i "^dep:\|^docs:\|^dependencies:\|^dependency:"; then
-            echo "Skipping release for dependency/docs commits"
+          if echo "$COMMIT_MESSAGES" | grep -iE "^dep:|^docs:|^dependencies:|^dependency:|^release:|update.*dependenc|bump.*version"; then
+            echo "Skipping release for dependency/docs/version update commits"
+            echo "should_release=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Skip if this is already a release commit to prevent infinite loops
+          if echo "$COMMIT_MESSAGES" | grep -E "^🤖 Fully Automated Release|^🤖 Automated Release"; then
+            echo "Skipping release for release commits to prevent loops"
             echo "should_release=false" >> $GITHUB_OUTPUT
             exit 0
           fi
@@ -89,7 +96,10 @@ jobs:
             if echo "$MERGED_BRANCHES" | grep -iE "^feat|/feat"; then
               VERSION_TYPE="minor"
             # Check for feat in commit messages as fallback
-            elif echo "$COMMIT_MESSAGES" | grep -i "^feat\|feat:"; then
+            elif echo "$COMMIT_MESSAGES" | grep -iE "^feat:|feat\(.*\):|^feature:"; then
+              VERSION_TYPE="minor"
+            # Check for breaking changes (should be major, but we'll be conservative and use minor)
+            elif echo "$COMMIT_MESSAGES" | grep -iE "BREAKING CHANGE|breaking:|^break:"; then
               VERSION_TYPE="minor"
             # Everything else is patch (Z)
             else
@@ -99,8 +109,13 @@ jobs:
           
           echo "Detected version type: $VERSION_TYPE"
           
-          # Calculate new version
+          # Calculate new version with validation
           CURRENT_VERSION=${LATEST_TAG#v}
+          if [[ ! $CURRENT_VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: Invalid current version format: $CURRENT_VERSION" >&2
+            exit 1
+          fi
+          
           IFS='.' read -ra VERSION_PARTS <<< "$CURRENT_VERSION"
           MAJOR=${VERSION_PARTS[0]:-0}
           MINOR=${VERSION_PARTS[1]:-0}
@@ -116,9 +131,19 @@ jobs:
             patch)
               NEW_VERSION="v${MAJOR}.${MINOR}.$((PATCH + 1))"
               ;;
+            *)
+              echo "Error: Invalid version type: $VERSION_TYPE" >&2
+              exit 1
+              ;;
           esac
           
           echo "New version: $NEW_VERSION"
+          
+          # Validate new version doesn't already exist
+          if git tag -l | grep -q "^${NEW_VERSION}$"; then
+            echo "Error: Version $NEW_VERSION already exists" >&2
+            exit 1
+          fi
           
           # Set outputs
           echo "should_release=true" >> $GITHUB_OUTPUT
@@ -149,7 +174,7 @@ jobs:
           echo "✅ Updated Makefile fallback version to: ${VERSION}"
 
       - name: Create release branch and commit changes
-        uses: devops-infra/action-commit-push@v0.11.1
+        uses: ./
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           target_branch: release/${{ needs.check_for_release.outputs.new_version }}
@@ -164,11 +189,6 @@ jobs:
             - **Trigger**: `${{ github.event_name }}`
             - **Actor**: @${{ github.actor }}
             - **Date**: $(date +'%Y-%m-%d %H:%M:%S UTC')
-            
-            🔄 Automated Changes
-            - ✅ Updated `action.yml` Docker image reference
-            - ✅ Updated `Makefile` fallback version
-            - ✅ Version auto-detected from commit messages
             
             🚀 What happens when merged?
             1. 🐳 Multi-architecture Docker images built and pushed
