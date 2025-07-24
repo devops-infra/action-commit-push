@@ -43,7 +43,7 @@ fi
 # Setting branch name
 BRANCH="${INPUT_TARGET_BRANCH:-$(git symbolic-ref --short -q HEAD)}"
 # Add timestamp to branch name
-if [[ "${INPUT_ADD_TIMESTAMP}" == "true" && -n ${FILES_CHANGED} ]]; then
+if [[ "${INPUT_ADD_TIMESTAMP}" == "true" ]]; then
   TIMESTAMP=$(date -u +"%Y-%m-%dT%H-%M-%SZ")
   if [[ -n ${BRANCH} ]]; then
     BRANCH="${BRANCH}-${TIMESTAMP}"
@@ -54,7 +54,7 @@ fi
 echo -e "\n[INFO] Target branch: ${BRANCH}"
 
 # Enhanced branch handling with proper remote synchronization
-if [[ -n "${INPUT_TARGET_BRANCH}" || ("${INPUT_ADD_TIMESTAMP}" == "true" && -n ${FILES_CHANGED}) ]]; then
+if [[ -n "${INPUT_TARGET_BRANCH}" || "${INPUT_ADD_TIMESTAMP}" == "true" ]]; then
   # Fetch latest changes from remote
   echo "[INFO] Fetching latest changes from remote..."
   git fetch origin || {
@@ -64,10 +64,18 @@ if [[ -n "${INPUT_TARGET_BRANCH}" || ("${INPUT_ADD_TIMESTAMP}" == "true" && -n $
   # Check if remote branch exists
   REMOTE_BRANCH_EXISTS=$(git ls-remote --heads origin "${BRANCH}" 2>/dev/null | wc -l)
 
-  MAIN_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || \
-    (git show-ref --verify --quiet "refs/remotes/origin/main" && echo "main") || \
-    (git show-ref --verify --quiet "refs/remotes/origin/master" && echo "master") || \
-    echo "main")
+  # Improved main branch detection
+  MAIN_BRANCH="main"
+  if git show-ref --verify --quiet "refs/remotes/origin/main"; then
+    MAIN_BRANCH="main"
+  elif git show-ref --verify --quiet "refs/remotes/origin/master"; then
+    MAIN_BRANCH="master"
+  else
+    # Try to get default branch from remote HEAD
+    MAIN_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo "main")
+  fi
+  echo "[INFO] Detected main branch: ${MAIN_BRANCH}"
+
   if [[ ${REMOTE_BRANCH_EXISTS} -gt 0 ]]; then
     echo "[INFO] Remote branch '${BRANCH}' exists, checking out and updating..."
     # Check if local branch exists
@@ -85,20 +93,14 @@ if [[ -n "${INPUT_TARGET_BRANCH}" || ("${INPUT_ADD_TIMESTAMP}" == "true" && -n $
       }
     fi
 
-    # Ensure branch is up-to-date with main/master
-    if git show-ref --verify --quiet "refs/remotes/origin/${MAIN_BRANCH}"; then
+    # Ensure branch is up-to-date with main/master (only if they're different branches)
+    if [[ "${BRANCH}" != "${MAIN_BRANCH}" ]] && git show-ref --verify --quiet "refs/remotes/origin/${MAIN_BRANCH}"; then
       echo "[INFO] Rebasing branch onto ${MAIN_BRANCH}..."
       git rebase "origin/${MAIN_BRANCH}" || {
-        echo "[ERROR] Rebase onto ${MAIN_BRANCH} failed. This may indicate conflicts or other issues."
-        echo "[INFO] Attempting to abort the rebase..."
-        if git rebase --abort 2>/dev/null; then
-          echo "[INFO] Rebase aborted successfully. The branch is in its pre-rebase state."
-          echo "[INFO] Please resolve any conflicts manually and reattempt the rebase if necessary."
-        else
-          echo "[ERROR] Failed to abort the rebase. The repository may be in an inconsistent state."
-          echo "[INFO] Please inspect the repository and resolve any issues manually."
-          exit 1
-        fi
+        echo "[WARNING] Rebase onto ${MAIN_BRANCH} failed. This may indicate conflicts."
+        echo "[INFO] Attempting to abort the rebase and continue without sync..."
+        git rebase --abort 2>/dev/null || true
+        echo "[INFO] Branch will remain at its current state without sync to ${MAIN_BRANCH}"
       }
     fi
   else
@@ -166,7 +168,7 @@ if [[ "${INPUT_FORCE}" == "true" ]]; then
 elif [[ "${INPUT_FORCE_WITH_LEASE}" == "true" ]]; then
   echo "[INFO] Force pushing changes with lease"
   git push --force-with-lease origin "${BRANCH}"
-elif [[ -n ${FILES_CHANGED} || "${INPUT_AMEND}" == "true" ]]; then
+elif [[ -n ${FILES_CHANGED} || "${INPUT_AMEND}" == "true" || -n "${INPUT_TARGET_BRANCH}" ]]; then
   echo "[INFO] Pushing changes"
   # Check if branch has upstream tracking
   if git rev-parse --abbrev-ref "${BRANCH}@{upstream}" >/dev/null 2>&1; then
