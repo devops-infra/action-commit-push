@@ -54,7 +54,7 @@ fi
 echo -e "\n[INFO] Target branch: ${BRANCH}"
 
 # Enhanced branch handling with proper remote synchronization
-if [[ -n "${INPUT_TARGET_BRANCH}" || "${INPUT_ADD_TIMESTAMP}" == "true" ]]; then
+if [[ -n "${INPUT_TARGET_BRANCH}" || ("${INPUT_ADD_TIMESTAMP}" == "true" && -n ${FILES_CHANGED}) ]]; then
   # Fetch latest changes from remote
   echo "[INFO] Fetching latest changes from remote..."
   git fetch origin || {
