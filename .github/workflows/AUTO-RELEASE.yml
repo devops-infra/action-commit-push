@@ -63,25 +63,19 @@ jobs:
           echo "✅ Updated Makefile fallback version to: ${VERSION}"
 
       - name: Create release branch and commit changes
-        uses: devops-infra/action-commit-push@v0.11.1
+        uses: ./
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           target_branch: release/${{ github.event.inputs.version }}
           commit_message: |
-            Automated Release ${{ github.event.inputs.version }}
-            
-            This is an **automated release** created via workflow dispatch.
+            🤖 Automated Release ${{ github.event.inputs.version }}
             
             Release Details
             - **Version**: `${{ github.event.inputs.version }}`
             - **Type**: `${{ github.event.inputs.release_type }}`
             - **Triggered by**: @${{ github.actor }}
             - **Date**: ${{ steps.date.outputs.date }}
-            
-            Changes in this release
-            - ✅ Updated `action.yml` to reference Docker image `${{ github.event.inputs.version }}`
-            - ✅ Updated `Makefile` fallback version to `${{ github.event.inputs.version }}`
-            
+
             What happens when this PR is merged?
             1. 🐳 Docker images will be built and pushed to Docker Hub and GitHub Packages
             2. 🏷️ A GitHub release will be created with tag `${{ github.event.inputs.version }}`
@@ -94,4 +88,4 @@ jobs:
             **⚠️ Important:** Once merged, this will immediately publish Docker images to production registries.
             
             ---
-            *This release was created automatically. No manual intervention required.*
+            *🤖 Fully automated release - zero manual intervention required!*

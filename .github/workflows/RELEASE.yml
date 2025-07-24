@@ -114,30 +114,37 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TERM: xterm-256color
           VERSION: ${{ steps.version.outputs.version }}
-        run: make push
+        run: |
+          echo "Building and pushing Docker images for version: $VERSION"
+          make push || {
+            echo "❌ Docker build/push failed"
+            exit 1
+          }
+          echo "✅ Docker images built and pushed successfully"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2.3.2
         with:
           tag_name: ${{ steps.version.outputs.version }}
-          name: Release ${{ steps.version.outputs.version }}
+          name: ${{ steps.version.outputs.version }}
           body: |
             ## Release ${{ steps.version.outputs.version }}
             
-            This release was automatically created after merging the release PR.
-            
-            ### Docker Images
-            - **Docker Hub:** `devopsinfra/action-commit-push:${{ steps.version.outputs.version }}`
-            - **GitHub Packages:** `ghcr.io/devops-infra/action-commit-push:${{ steps.version.outputs.version }}`
-            
-            Both images are built for `amd64` and `arm64` architectures.
-            
-            ### Usage
+            ### 🚀 Usage
             ```yaml
             - uses: devops-infra/action-commit-push@${{ steps.version.outputs.version }}
+              with:
+                github_token: ${{ secrets.GITHUB_TOKEN }}
+                commit_message: "Your commit message"
             ```
             
-            For full documentation, see the [README](https://github.com/devops-infra/action-commit-push#readme).
+            ### 📦 Docker Images
+            - `docker://devopsinfra/action-commit-push:${{ steps.version.outputs.version }}`
+            - `docker://devopsinfra/action-commit-push:latest`
+            
+            ### 🏗️ Architecture Support
+            - `linux/amd64`
+            - `linux/arm64`
           generate_release_notes: true
           draft: false
           prerelease: false
@@ -152,10 +159,25 @@ jobs:
 
       - name: Clean up release branch
         run: |
+          RELEASE_BRANCH="${{ github.event.pull_request.head.ref }}"
+          echo "Attempting to clean up release branch: $RELEASE_BRANCH"
+          
           # Check if the release branch exists before attempting to delete it
-          if git ls-remote --exit-code origin "${{ github.event.pull_request.head.ref }}"; then
-            echo "Deleting branch \"${{ github.event.pull_request.head.ref }}\"..."
-            git push origin --delete "${{ github.event.pull_request.head.ref }}"
+          if git ls-remote --exit-code --heads origin "$RELEASE_BRANCH" >/dev/null 2>&1; then
+            echo "✅ Branch $RELEASE_BRANCH exists on remote, deleting..."
+            git push origin --delete "$RELEASE_BRANCH" || {
+              echo "⚠️ Warning: Failed to delete remote branch $RELEASE_BRANCH"
+              echo "This is not critical - the branch can be cleaned up manually"
+            }
+            echo "✅ Remote branch $RELEASE_BRANCH deleted successfully"
           else
-            echo "Branch ${{ github.event.pull_request.head.ref }} does not exist. Skipping deletion."
+            echo "ℹ️ Branch $RELEASE_BRANCH does not exist on remote (may have been auto-deleted)"
           fi
+          
+          # Also try to clean up any local reference
+          if git show-ref --verify --quiet "refs/heads/$RELEASE_BRANCH"; then
+            echo "🧹 Cleaning up local branch reference..."
+            git branch -D "$RELEASE_BRANCH" 2>/dev/null || true
+          fi
+          
+          echo "✅ Branch cleanup completed"
