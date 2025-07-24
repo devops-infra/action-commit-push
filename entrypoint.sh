@@ -64,7 +64,10 @@ if [[ -n "${INPUT_TARGET_BRANCH}" || "${INPUT_ADD_TIMESTAMP}" == "true" ]]; then
   # Check if remote branch exists
   REMOTE_BRANCH_EXISTS=$(git ls-remote --heads origin "${BRANCH}" 2>/dev/null | wc -l)
 
-  MAIN_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo "main")
+  MAIN_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || \
+    (git show-ref --verify --quiet "refs/remotes/origin/main" && echo "main") || \
+    (git show-ref --verify --quiet "refs/remotes/origin/master" && echo "master") || \
+    echo "main")
   if [[ ${REMOTE_BRANCH_EXISTS} -gt 0 ]]; then
     echo "[INFO] Remote branch '${BRANCH}' exists, checking out and updating..."
     # Check if local branch exists
