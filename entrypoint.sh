@@ -89,9 +89,16 @@ if [[ -n "${INPUT_TARGET_BRANCH}" || "${INPUT_ADD_TIMESTAMP}" == "true" ]]; then
     if git show-ref --verify --quiet "refs/remotes/origin/${MAIN_BRANCH}"; then
       echo "[INFO] Rebasing branch onto ${MAIN_BRANCH}..."
       git rebase "origin/${MAIN_BRANCH}" || {
-        echo "[WARNING] Could not auto-rebase onto ${MAIN_BRANCH}. Branch may have conflicts."
-        echo "[INFO] Attempting to abort rebase and continue with current state..."
-        git rebase --abort 2>/dev/null || true
+        echo "[ERROR] Rebase onto ${MAIN_BRANCH} failed. This may indicate conflicts or other issues."
+        echo "[INFO] Attempting to abort the rebase..."
+        if git rebase --abort 2>/dev/null; then
+          echo "[INFO] Rebase aborted successfully. The branch is in its pre-rebase state."
+          echo "[INFO] Please resolve any conflicts manually and reattempt the rebase if necessary."
+        else
+          echo "[ERROR] Failed to abort the rebase. The repository may be in an inconsistent state."
+          echo "[INFO] Please inspect the repository and resolve any issues manually."
+          exit 1
+        fi
       }
     fi
   else
