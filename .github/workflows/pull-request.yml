@@ -5,12 +5,10 @@ on:
     branches-ignore:
       - master
       - 'dependabot**'
-      - 'test**'
 
 jobs:
   lint:
     name: Lint
-    if: ${{ !startsWith(github.ref, 'refs/heads/dependabot') }}
     runs-on: ubuntu-24.04-arm
     steps:
       - name: Checkout
@@ -21,8 +19,9 @@ jobs:
         with:
           dockerfile: Dockerfile
 
-  build_test:
+  build-test:
     name: Push test
+    if: ${{ !startsWith(github.ref, 'refs/heads/doc') && !startsWith(github.ref, 'refs/heads/test') }}
     runs-on: ubuntu-24.04-arm
     steps:
       - name: Checkout
@@ -62,7 +61,7 @@ jobs:
           TERM: xterm-256color
         run: make push
 
-  pull_request:
+  pull-request:
     name: Pull Request
     runs-on: ubuntu-24.04-arm
     steps:
