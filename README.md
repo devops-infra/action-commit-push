@@ -75,6 +75,7 @@ A powerful GitHub Action for automatically committing and pushing changes back t
 | organization_domain | No       | `github.com`     | GitHub Enterprise domain name.                                                                                                                                |
 | target_branch       | No       | *current branch* | Name of a new branch to push the code into. Creates branch if not existing.                                                                                   |
 
+
 ### 📤 Output Parameters
 
 | Output        | Description                                                              |
@@ -109,6 +110,7 @@ jobs:
           commit_message: "Replace foo with bar"
 ```
 
+
 ### 🔀 Advanced Example: Commit, Push, and Create Pull Request
 
 Commit and push changes to a new branch and create a pull request using [devops-infra/action-pull-request](https://github.com/devops-infra/action-pull-request).
@@ -139,6 +141,7 @@ jobs:
           body: "**Automated pull request**<br><br>Replaced foo with bar"
           title: ${{ github.event.commits[0].message }}
 ```
+
 
 ### 💪 Force Push Example: Amending Previous Commit
 
@@ -173,6 +176,7 @@ jobs:
           amend: true
           force_with_lease: true  # Safer force push option
 ```
+
 
 ### 📝 Amend Options
 
