@@ -89,7 +89,7 @@ jobs:
         run: task git:get-pr-template
 
       - name: Create Pull Request
-        uses: devops-infra/action-pull-request@v0.6
+        uses: devops-infra/action-pull-request@v1.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           assignee: ${{ github.actor }}
