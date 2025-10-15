@@ -131,12 +131,12 @@ if [[ -n ${FILES_CHANGED} || "${INPUT_AMEND}" == "true" ]]; then
   if [[ -n ${FILES_CHANGED} ]]; then
     echo "[INFO] Committing changes."
   fi
-  
+
   if [[ "${INPUT_AMEND}" == "true" ]]; then
     COMMIT_PARAMS+=("--amend")
     echo "[INFO] Amending previous commit."
   fi
-  
+
   if [[ "${INPUT_NO_EDIT}" == "true" ]]; then
     COMMIT_PARAMS+=("--no-edit")
     echo "[INFO] Using existing commit message (--no-edit)."
@@ -146,7 +146,7 @@ if [[ -n ${FILES_CHANGED} || "${INPUT_AMEND}" == "true" ]]; then
     if [[ "${INPUT_AMEND}" == "true" ]]; then
       echo "[INFO] Setting new commit message: ${COMMIT_MESSAGE}"
     fi
-    
+
     if [[ -n ${FILES_CHANGED} ]]; then
       git commit "${COMMIT_PARAMS[@]}" -am "${COMMIT_MESSAGE}" -m "$(echo -e "Files changed:\n${FILES_CHANGED}")"
     else

@@ -1,6 +1,6 @@
-name: GitHub Action for committing changes to a repository
-author: Krzysztof Szyper / ChristophShyper / biotyk@mail.com
-description: GitHub Action that will create a new commit and push it back to the repository
+name: GitHub Action for Committing Changes to Repository
+author: Krzysztof Szyper / ChristophShyper / shyper.pro
+description: Powerful GitHub Action for automatically committing and pushing changes back to your repository
 inputs:
   github_token:
     description: Personal Access Token for GitHub for pushing the code
@@ -49,7 +49,7 @@ outputs:
     description: Name of the branch code was pushed into
 runs:
   using: docker
-  image: docker://devopsinfra/action-commit-push:latest
+  image: docker://devopsinfra/action-commit-push:v1.0.0
   env:
     GITHUB_TOKEN: ${{ inputs.github_token }}
 branding:

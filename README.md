@@ -1,19 +1,19 @@
 # 🚀 GitHub Action for Committing Changes to Repository
 
+**Powerful GitHub Action for automatically committing and pushing changes back to your repository.**
 
-### 🏗️ Multi-Architecture Support: `amd64` and `aarch64/arm64`
-
+**Perfect for automation workflows and integrates seamlessly with [devops-infra/action-pull-request](https://github.com/devops-infra/action-pull-request).**
 
 ### ⚠️ Recent Changes in v0.11.0
+
 - **Force behavior updated**: `force: true` now uses `git push --force` (breaking change)
-- **New parameter**: `force_with_lease` for safer force pushing with `--force-with-lease`  
+- **New parameter**: `force_with_lease` for safer force pushing with `--force-with-lease`
 - **Amend improvements**: Can now combine `amend: true` with `commit_message` to change commit messages
 - **Release process**: Fully automated releases - zero manual work required!
 
-A powerful GitHub Action for automatically committing and pushing changes back to your repository. Perfect for automation workflows and integrates seamlessly with [devops-infra/action-pull-request](https://github.com/devops-infra/action-pull-request).
-
 
 ## 📦 Available on
+
 - **Docker Hub:** [devopsinfra/action-commit-push:latest](https://hub.docker.com/repository/docker/devopsinfra/action-commit-push)
 - **GitHub Packages:** [ghcr.io/devops-infra/action-commit-push:latest](https://github.com/orgs/devops-infra/packages/container/package/action-commit-push)
 
@@ -28,17 +28,18 @@ A powerful GitHub Action for automatically committing and pushing changes back t
 - **🔀 Pull request integration:** Perfect companion for automated PR workflows
 
 
-## 📊 Badge Swag
+## 📊 Badges
+
 [
 ![GitHub repo](https://img.shields.io/badge/GitHub-devops--infra%2Faction--commit--push-blueviolet.svg?style=plastic&logo=github)
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/devops-infra/action-commit-push?color=blueviolet&label=Code%20size&style=plastic&logo=github)
 ![GitHub last commit](https://img.shields.io/github/last-commit/devops-infra/action-commit-push?color=blueviolet&logo=github&style=plastic&label=Last%20commit)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/devops-infra/action-commit-push?color=blueviolet&label=Code%20size&style=plastic&logo=github)
 ![GitHub license](https://img.shields.io/github/license/devops-infra/action-commit-push?color=blueviolet&logo=github&style=plastic&label=License)
 ](https://github.com/devops-infra/action-commit-push "shields.io")
 <br>
 [
 ![DockerHub](https://img.shields.io/badge/DockerHub-devopsinfra%2Faction--commit--push-blue.svg?style=plastic&logo=docker)
-![Docker version](https://img.shields.io/docker/v/devopsinfra/action-commit-push?color=blue&label=Version&logo=docker&style=plastic)
+![Docker version](https://img.shields.io/docker/v/devopsinfra/action-commit-push?color=blue&label=Version&logo=docker&style=plastic&sort=semver)
 ![Image size](https://img.shields.io/docker/image-size/devopsinfra/action-commit-push/latest?label=Image%20size&style=plastic&logo=docker)
 ![Docker Pulls](https://img.shields.io/docker/pulls/devopsinfra/action-commit-push?color=blue&label=Pulls&logo=docker&style=plastic)
 ](https://hub.docker.com/r/devopsinfra/action-commit-push "shields.io")
@@ -48,50 +49,53 @@ A powerful GitHub Action for automatically committing and pushing changes back t
 
 ```yaml
       - name: Run the Action
-        uses: devops-infra/action-commit-push@master
+        uses: devops-infra/action-commit-push@v1.0.0
         with:
           github_token: "${{ secrets.GITHUB_TOKEN }}"
           add_timestamp: true
+          amend: false
           commit_prefix: "[AUTO]"
           commit_message: "Automatic commit"
           force: false
           force_with_lease: false
+          no_edit: false
+          organization_domain: github.com
           target_branch: update/version
 ```
 
 
 ### 🔧 Input Parameters
 
-| Input Variable      | Required | Default          | Description                                                                                                                                                   |
-|---------------------|----------|------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| github_token        | Yes      | `""`             | Personal Access Token for GitHub for pushing the code.                                                                                                        |
-| add_timestamp       | No       | `false`          | Whether to add the timestamp to a new branch name. Uses format `%Y-%m-%dT%H-%M-%SZ`.                                                                          |
-| amend               | No       | `false`          | Whether to make an amendment to the previous commit (`--amend`). Can be combined with `commit_message` to change the commit message.                          |
-| commit_prefix       | No       | `""`             | Prefix added to commit message. Combines with `commit_message`.                                                                                               |
-| commit_message      | No       | `""`             | Commit message to set. Combines with `commit_prefix`. Can be used with `amend` to change the commit message.                                                  |
-| force               | No       | `false`          | Whether to use force push (`--force`). Use only when you need to overwrite remote changes. Potentially dangerous.                                             |
-| force_with_lease    | No       | `false`          | Whether to use force push with lease (`--force-with-lease`). Safer than `force` as it checks for remote changes. Set `fetch-depth: 0` for `actions/checkout`. |
-| no_edit             | No       | `false`          | Whether to not edit commit message when using amend (`--no-edit`).                                                                                            |
-| organization_domain | No       | `github.com`     | GitHub Enterprise domain name.                                                                                                                                |
-| target_branch       | No       | *current branch* | Name of a new branch to push the code into. Creates branch if not existing.                                                                                   |
+| Input Variable        | Required | Default          | Description                                                                                                                                                   |
+|-----------------------|----------|------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `github_token`        | Yes      | `""`             | Personal Access Token for GitHub for pushing the code.                                                                                                        |
+| `add_timestamp`       | No       | `false`          | Whether to add the timestamp to a new branch name. Uses format `%Y-%m-%dT%H-%M-%SZ`.                                                                          |
+| `amend`               | No       | `false`          | Whether to make an amendment to the previous commit (`--amend`). Can be combined with `commit_message` to change the commit message.                          |
+| `commit_prefix`       | No       | `""`             | Prefix added to commit message. Combines with `commit_message`.                                                                                               |
+| `commit_message`      | No       | `""`             | Commit message to set. Combines with `commit_prefix`. Can be used with `amend` to change the commit message.                                                  |
+| `force`               | No       | `false`          | Whether to use force push (`--force`). Use only when you need to overwrite remote changes. Potentially dangerous.                                             |
+| `force_with_lease`    | No       | `false`          | Whether to use force push with lease (`--force-with-lease`). Safer than `force` as it checks for remote changes. Set `fetch-depth: 0` for `actions/checkout`. |
+| `no_edit`             | No       | `false`          | Whether to not edit commit message when using amend (`--no-edit`).                                                                                            |
+| `organization_domain` | No       | `github.com`     | GitHub Enterprise domain name.                                                                                                                                |
+| `target_branch`       | No       | *current branch* | Name of a new branch to push the code into. Creates branch if not existing.                                                                                   |
 
 
 ### 📤 Output Parameters
 
-| Output        | Description                                                              |
-|---------------|--------------------------------------------------------------------------|
-| files_changed | List of changed files, as returned by `git diff --staged --name-status`. |
-| branch_name   | Name of the branch code was pushed into.                                 |
+| Output          | Description                                                              |
+|-----------------|--------------------------------------------------------------------------|
+| `files_changed` | List of changed files, as returned by `git diff --staged --name-status`. |
+| `branch_name`   | Name of the branch code was pushed into.                                 |
 
 
 ## 💻 Usage Examples
 
-### 📝 Basic Example: Commit and Push to Current Branch
+### 📝 Basic Example
 
 Commit and push changes to the currently checked out branch.
 
 ```yaml
-name: Push changes
+name: Run the Action
 on:
   push
 jobs:
@@ -103,15 +107,15 @@ jobs:
       - name: Change something
         run: |
           find . -type f -name "*.md" -print0 | xargs -0 sed -i "s/foo/bar/g"
+
       - name: Commit and push changes
-        uses: devops-infra/action-commit-push@v0.11
+        uses: devops-infra/action-commit-push@v1.0.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           commit_message: "Replace foo with bar"
 ```
 
-
-### 🔀 Advanced Example: Commit, Push, and Create Pull Request
+### 🔀 Advanced Example
 
 Commit and push changes to a new branch and create a pull request using [devops-infra/action-pull-request](https://github.com/devops-infra/action-pull-request).
 
@@ -128,14 +132,16 @@ jobs:
       - name: Change something
         run: |
           find . -type f -name "*.md" -print0 | xargs -0 sed -i "s/foo/bar/g"
+
       - name: Commit and push changes
-        uses: devops-infra/action-commit-push@v.11
+        uses: devops-infra/action-commit-push@v.11.4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           commit_prefix: "[AUTO-COMMIT] "
           commit_message: "Replace foo with bar"
+
       - name: Create pull request
-        uses: devops-infra/action-pull-request@v0.6
+        uses: devops-infra/action-pull-request@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           body: "**Automated pull request**<br><br>Replaced foo with bar"
@@ -143,9 +149,9 @@ jobs:
 ```
 
 
-### 💪 Force Push Example: Amending Previous Commit
+### 💪 Force Push Example
 
-When you need to amend the previous commit and force push (useful for fixing commit messages or adding forgotten changes).
+When you need to amend the previous commit and force push (useful when adding automatic changes to manual commit).
 
 ```yaml
 name: Amend and force push
@@ -168,8 +174,9 @@ jobs:
       - name: Make some changes
         run: |
           echo "Additional content" >> README.md
+
       - name: Amend and force push with lease
-        uses: devops-infra/action-commit-push@v0.11
+        uses: devops-infra/action-commit-push@v1.0.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           commit_message: ${{ github.event.inputs.new_commit_message }}
@@ -177,14 +184,13 @@ jobs:
           force_with_lease: true  # Safer force push option
 ```
 
-
-### 📝 Amend Options
+## 📝 Amend Options
 
 When using `amend: true`, you have several options for handling the commit message:
 
 1. **Change the commit message**: Set `commit_message` to provide a new message
    ```yaml
-   - uses: devops-infra/action-commit-push@master
+   - uses: devops-infra/action-commit-push@v1.0.0
      with:
        github_token: ${{ secrets.GITHUB_TOKEN }}
        commit_message: "Fixed typo in documentation"
@@ -194,7 +200,7 @@ When using `amend: true`, you have several options for handling the commit messa
 
 2. **Keep existing message**: Set `no_edit: true` to keep the original commit message
    ```yaml
-   - uses: devops-infra/action-commit-push@master
+   - uses: devops-infra/action-commit-push@v1.0.0
      with:
        github_token: ${{ secrets.GITHUB_TOKEN }}
        amend: true
@@ -207,26 +213,9 @@ When using `amend: true`, you have several options for handling the commit messa
 **💡 Note:** Amending works even without file changes - useful for just changing commit messages!
 
 
-## 🏷️ Version Tags: vX, vX.Y, vX.Y.Z
-
-This action supports three tag levels for flexible versioning:
-
-- **`vX`**: Always points to the latest patch of a major version (e.g., `v1` → `v1.2.3`).  
-  _Benefit: Get all latest fixes for a major version automatically._
-
-- **`vX.Y`**: Always points to the latest patch of a minor version (e.g., `v1.2` → `v1.2.3`).  
-  _Benefit: Stay on a minor version, always up-to-date with bugfixes._
-
-- **`vX.Y.Z`**: Fixed to a specific release (e.g., `v1.2.3`).  
-  _Benefit: Full reproducibility—never changes._
-
-**Use the tag depth that matches your stability needs.**
-
-
 ## ⚠️ Force Push Options
 
 This action provides two force push options for different scenarios:
-
 
 ### 🛡️ `force_with_lease` (Recommended)
 - Uses `git push --force-with-lease`
@@ -235,9 +224,8 @@ This action provides two force push options for different scenarios:
 - **Required:** Set `fetch-depth: 0` in your `actions/checkout` step
 - **Use case:** Amending commits, rebasing, or other history modifications
 
-
 ### ⚡ `force` (Use with Caution)
-- Uses `git push --force` 
+- Uses `git push --force`
 - **Potentially dangerous** as it will overwrite remote changes unconditionally
 - No safety checks - will overwrite any remote changes
 - **Use case:** Only when you're absolutely certain you want to overwrite remote changes
@@ -245,14 +233,30 @@ This action provides two force push options for different scenarios:
 **⚠️ Important:** Never use both options simultaneously. `force_with_lease` takes precedence if both are set to `true`.
 
 
-## 🤝 Contributing
+### 🎯 Use specific version
 
-Contributions are welcome! Please feel free to submit a Pull Request. Refer to the [CONTRIBUTING](https://github.com/devops-infra/.github/blob/master/CONTRIBUTING.md) for guidelines.
+Run the Action with a specific version tag.
 
+```yaml
+name: Run the Action
+on:
+  push:
+    branches-ignore: master
+jobs:
+  action-commit-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
 
-## 📄 License
+      - uses: devops-infra/action-commit-push@v1.0.0
+        id: Pin patch version
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+      - uses: devops-infra/action-commit-push@v1.0
+        id: Pin minor version
+
+      - uses: devops-infra/action-commit-push@v1
+        id: Pin major version
+```
 
 
 ## 🔗 Related Actions
@@ -260,8 +264,19 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [devops-infra/action-pull-request](https://github.com/devops-infra/action-pull-request) - Create pull requests automatically
 
 
+## 🤝 Contributing
+
+Contributions are welcome! See [CONTRIBUTING](https://github.com/devops-infra/.github/blob/master/CONTRIBUTING.md).
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+
 ## 💬 Support
 
 If you have any questions or need help, please:
-- 📝 Create an [issue](https://github.com/devops-infra/template-action/issues)
+- 📝 Create an [issue](https://github.com/devops-infra/action-commit-push/issues)
 - 🌟 Star this repository if you find it useful!
