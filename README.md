@@ -47,7 +47,7 @@ This action supports three tag levels for flexible versioning:
 
 ```yaml
       - name: Run the Action
-        uses: devops-infra/action-commit-push@v1.0.2
+        uses: devops-infra/action-commit-push@v1.0.3
         with:
           github_token: "${{ secrets.GITHUB_TOKEN }}"
           add_timestamp: true
@@ -104,7 +104,7 @@ jobs:
           find . -type f -name "*.md" -print0 | xargs -0 sed -i "s/foo/bar/g"
 
       - name: Commit and push changes
-        uses: devops-infra/action-commit-push@v1.0.2
+        uses: devops-infra/action-commit-push@v1.0.3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           commit_message: "Replace foo with bar"
@@ -169,7 +169,7 @@ jobs:
           echo "Additional content" >> README.md
 
       - name: Amend and force push with lease
-        uses: devops-infra/action-commit-push@v1.0.2
+        uses: devops-infra/action-commit-push@v1.0.3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           commit_message: ${{ github.event.inputs.new_commit_message }}
@@ -182,7 +182,7 @@ When using `amend: true`, you have several options for handling the commit messa
 
 1. **Change the commit message**: Set `commit_message` to provide a new message
    ```yaml
-   - uses: devops-infra/action-commit-push@v1.0.2
+   - uses: devops-infra/action-commit-push@v1.0.3
      with:
        github_token: ${{ secrets.GITHUB_TOKEN }}
        commit_message: "Fixed typo in documentation"
@@ -192,7 +192,7 @@ When using `amend: true`, you have several options for handling the commit messa
 
 2. **Keep existing message**: Set `no_edit: true` to keep the original commit message
    ```yaml
-   - uses: devops-infra/action-commit-push@v1.0.2
+   - uses: devops-infra/action-commit-push@v1.0.3
      with:
        github_token: ${{ secrets.GITHUB_TOKEN }}
        amend: true
@@ -238,7 +238,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: devops-infra/action-commit-push@v1.0.2
+      - uses: devops-infra/action-commit-push@v1.0.3
         id: Pin patch version
 
       - uses: devops-infra/action-commit-push@v1.0
