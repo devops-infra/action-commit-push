@@ -1,4 +1,4 @@
-name: GitHub Action for Committing Changes to Repository
+name: GitHub Action for committing changes to repository
 author: Krzysztof Szyper / ChristophShyper / shyper.pro
 description: Powerful GitHub Action for automatically committing and pushing changes back to your repository
 inputs:
