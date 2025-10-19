@@ -41,6 +41,18 @@ vars:
   DOCKER_NAME: '{{.DOCKER_ORG_NAME}}/{{.DOCKER_IMAGE}}'
   GITHUB_NAME: '{{.GITHUB_ORG_NAME}}/{{.GITHUB_REPO}}'
   GHRC_NAME: ghcr.io/{{.GITHUB_ORG_NAME}}/{{.GITHUB_REPO}}
+  DEFAULT_BRANCH: master
+  VERSION_FROM_ACTION_YML:
+    sh: 'grep "image: docker://{{.DOCKER_NAME}}:" action.yml | cut -d ":" -f 4'
+  AUTHOR_FROM_ACTION_YML:
+    sh: |
+      grep -e "^author:" action.yml | head -1 | awk -F": " '{print $2}'
+  NAME_FROM_ACTION_YML:
+    sh: |
+      grep -e "^name:" action.yml | head -1 | awk -F": " '{print $2}'
+  DESCRIPTION_FROM_ACTION_YML:
+    sh: |
+      grep -e "^description:" action.yml | head -1 | awk -F": " '{print $2}'
   LABEL_AUTHOR: '{{.LABEL_AUTHOR | default .AUTHOR_FROM_ACTION_YML}}'
   LABEL_NAME: '{{.LABEL_NAME | default .NAME_FROM_ACTION_YML}}'
   LABEL_DESCRIPTION: '{{.LABEL_DESCRIPTION | default .DESCRIPTION_FROM_ACTION_YML}}'
@@ -51,23 +63,6 @@ vars:
   LABEL_HOMEPAGE: '{{.LABEL_HOMEPAGE | default "https://shyper.pro"}}'
   LABEL_VENDOR: '{{.LABEL_VENDOR | default "DevOps-Infra"}}'
   LABEL_LICENSE: '{{.LABEL_LICENSE | default "MIT"}}'
-
-  # Action metadata
-  AUTHOR_FROM_ACTION_YML:
-    sh: |
-      awk -F":" '/^author:/ { $1=""; sub(/^[: ]+/, ""); gsub(/^\"|\"$/,"",$0); print $0; exit }' action.yml || true
-  NAME_FROM_ACTION_YML:
-    sh: |
-      awk -F":" '/^name:/ { $1=""; sub(/^[: ]+/, ""); gsub(/^\"|\"$/,"",$0); print $0; exit }' action.yml || true
-  DESCRIPTION_FROM_ACTION_YML:
-    sh: |
-      awk -F":" '/^description:/ { $1=""; sub(/^[: ]+/, ""); gsub(/^\"|\"$/,"",$0); print $0; exit }' action.yml || true
-  VERSION_FROM_ACTION_YML:
-    sh: 'grep "image: docker://{{.DOCKER_NAME}}:" action.yml | cut -d ":" -f 4'
-  MAJOR_FROM_ACTION_YML:
-    sh: echo "{{.VERSION_FROM_ACTION_YML}}" | awk -F\. '{print $1}'
-  MINOR_FROM_ACTION_YML:
-    sh: echo "{{.VERSION_FROM_ACTION_YML}}" | awk -F\. '{print $1"."$2}'
 
   # Build context
   CONTEXT: '{{.CONTEXT | default "."}}'
@@ -115,9 +110,12 @@ vars:
     sh: echo $(( {{.MINOR}} + 1 ))
   NEXT_MAJOR:
     sh: echo $(( {{.MAJOR}} + 1 ))
+  MAJOR_FROM_ACTION_YML:
+    sh: echo "{{.VERSION_FROM_ACTION_YML}}" | awk -F\. '{print $1}'
+  MINOR_FROM_ACTION_YML:
+    sh: echo "{{.VERSION_FROM_ACTION_YML}}" | awk -F\. '{print $1"."$2}'
 
   # Git metadata
-  DEFAULT_BRANCH: master
   GIT_SHA:
     sh: git rev-parse HEAD 2>/dev/null || echo 0000000000000000000000000000000000000000
   GIT_SHORT_SHA:
