@@ -1,25 +1,13 @@
-# 🚀 GitHub Action for Committing Changes to Repository
-
+# 🚀 GitHub Action for committing changes to repository
 **Powerful GitHub Action for automatically committing and pushing changes back to your repository.**
-
-**Perfect for automation workflows and integrates seamlessly with [devops-infra/action-pull-request](https://github.com/devops-infra/action-pull-request).**
-
-### ⚠️ Recent Changes in v0.11.0
-
-- **Force behavior updated**: `force: true` now uses `git push --force` (breaking change)
-- **New parameter**: `force_with_lease` for safer force pushing with `--force-with-lease`
-- **Amend improvements**: Can now combine `amend: true` with `commit_message` to change commit messages
-- **Release process**: Fully automated releases - zero manual work required!
 
 
 ## 📦 Available on
-
 - **Docker Hub:** [devopsinfra/action-commit-push:latest](https://hub.docker.com/repository/docker/devopsinfra/action-commit-push)
 - **GitHub Packages:** [ghcr.io/devops-infra/action-commit-push:latest](https://github.com/orgs/devops-infra/packages/container/package/action-commit-push)
 
 
 ## ✨ Features
-
 - **📝 Custom commit messages:** Add custom prefixes and messages to commits
 - **🌿 Branch management:** Create new branches automatically with optional timestamps
 - **⏰ Timestamp support:** Add timestamps to branch names for cron-based updates
@@ -28,8 +16,11 @@
 - **🔀 Pull request integration:** Perfect companion for automated PR workflows
 
 
-## 📊 Badges
+## 🔗 Related Actions
+**Perfect for automation workflows and integrates seamlessly with [devops-infra/action-pull-request](https://github.com/devops-infra/action-pull-request).**
 
+
+## 📊 Badges
 [
 ![GitHub repo](https://img.shields.io/badge/GitHub-devops--infra%2Faction--commit--push-blueviolet.svg?style=plastic&logo=github)
 ![GitHub last commit](https://img.shields.io/github/last-commit/devops-infra/action-commit-push?color=blueviolet&logo=github&style=plastic&label=Last%20commit)
@@ -43,6 +34,13 @@
 ![Image size](https://img.shields.io/docker/image-size/devopsinfra/action-commit-push/latest?label=Image%20size&style=plastic&logo=docker)
 ![Docker Pulls](https://img.shields.io/docker/pulls/devopsinfra/action-commit-push?color=blue&label=Pulls&logo=docker&style=plastic)
 ](https://hub.docker.com/r/devopsinfra/action-commit-push "shields.io")
+
+
+## 🏷️ Version Tags: vX, vX.Y, vX.Y.Z
+This action supports three tag levels for flexible versioning:
+- `vX`: latest patch of the major version (e.g., `v1`).
+- `vX.Y`: latest patch of the minor version (e.g., `v1.2`).
+- `vX.Y.Z`: fixed to a specific release (e.g., `v1.2.3`).
 
 
 ## 📖 API Reference
@@ -65,7 +63,6 @@
 
 
 ### 🔧 Input Parameters
-
 | Input Variable        | Required | Default          | Description                                                                                                                                                   |
 |-----------------------|----------|------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `github_token`        | Yes      | `""`             | Personal Access Token for GitHub for pushing the code.                                                                                                        |
@@ -81,7 +78,6 @@
 
 
 ### 📤 Output Parameters
-
 | Output          | Description                                                              |
 |-----------------|--------------------------------------------------------------------------|
 | `files_changed` | List of changed files, as returned by `git diff --staged --name-status`. |
@@ -91,7 +87,6 @@
 ## 💻 Usage Examples
 
 ### 📝 Basic Example
-
 Commit and push changes to the currently checked out branch.
 
 ```yaml
@@ -116,7 +111,6 @@ jobs:
 ```
 
 ### 🔀 Advanced Example
-
 Commit and push changes to a new branch and create a pull request using [devops-infra/action-pull-request](https://github.com/devops-infra/action-pull-request).
 
 ```yaml
@@ -150,7 +144,6 @@ jobs:
 
 
 ### 💪 Force Push Example
-
 When you need to amend the previous commit and force push (useful when adding automatic changes to manual commit).
 
 ```yaml
@@ -185,7 +178,6 @@ jobs:
 ```
 
 ## 📝 Amend Options
-
 When using `amend: true`, you have several options for handling the commit message:
 
 1. **Change the commit message**: Set `commit_message` to provide a new message
@@ -214,7 +206,6 @@ When using `amend: true`, you have several options for handling the commit messa
 
 
 ## ⚠️ Force Push Options
-
 This action provides two force push options for different scenarios:
 
 ### 🛡️ `force_with_lease` (Recommended)
@@ -234,7 +225,6 @@ This action provides two force push options for different scenarios:
 
 
 ### 🎯 Use specific version
-
 Run the Action with a specific version tag.
 
 ```yaml
@@ -259,24 +249,16 @@ jobs:
 ```
 
 
-## 🔗 Related Actions
-
-- [devops-infra/action-pull-request](https://github.com/devops-infra/action-pull-request) - Create pull requests automatically
-
-
 ## 🤝 Contributing
-
 Contributions are welcome! See [CONTRIBUTING](https://github.com/devops-infra/.github/blob/master/CONTRIBUTING.md).
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 
 ## 📄 License
-
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 
 ## 💬 Support
-
 If you have any questions or need help, please:
 - 📝 Create an [issue](https://github.com/devops-infra/action-commit-push/issues)
 - 🌟 Star this repository if you find it useful!
