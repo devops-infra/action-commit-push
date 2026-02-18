@@ -31,6 +31,15 @@ git remote set-url origin "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@${INPUT_ORGAN
 git config --global user.name "${GITHUB_ACTOR}"
 git config --global user.email "${GITHUB_ACTOR}@users.noreply.${INPUT_ORGANIZATION_DOMAIN}"
 
+get_current_branch() {
+  local branch
+  branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
+  if [[ "${branch}" == "HEAD" ]]; then
+    branch=""
+  fi
+  printf '%s' "${branch}"
+}
+
 # Get changed files
 git add -A
 FILES_CHANGED=$(git diff --staged --name-status)
@@ -43,13 +52,13 @@ fi
 SKIP_BRANCH_CREATION=false
 if [[ -z ${FILES_CHANGED} && "${INPUT_AMEND}" != "true" ]]; then
   SKIP_BRANCH_CREATION=true
-  BRANCH="$(git symbolic-ref --short -q HEAD)"
+  BRANCH="$(get_current_branch)"
   echo -e "\n[INFO] No changes to commit and amend disabled; skipping branch creation."
 fi
 
 if [[ "${SKIP_BRANCH_CREATION}" != "true" ]]; then
   # Setting branch name
-  BRANCH="${INPUT_TARGET_BRANCH:-$(git symbolic-ref --short -q HEAD)}"
+  BRANCH="${INPUT_TARGET_BRANCH:-$(get_current_branch)}"
   # Add timestamp to branch name
   if [[ "${INPUT_ADD_TIMESTAMP}" == "true" ]]; then
     TIMESTAMP=$(date -u +"%Y-%m-%dT%H-%M-%SZ")
