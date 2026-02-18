@@ -39,7 +39,7 @@ inputs:
     required: false
     default: github.com
   target_branch:
-    description: Name of a new branch to push the code into
+    description: Name of a new branch to push the code into (skipped when no changes and amend is false)
     required: false
     default: ""
 outputs:

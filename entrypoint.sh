@@ -40,84 +40,93 @@ else
   echo -e "\n[INFO] No files changed."
 fi
 
-# Setting branch name
-BRANCH="${INPUT_TARGET_BRANCH:-$(git symbolic-ref --short -q HEAD)}"
-# Add timestamp to branch name
-if [[ "${INPUT_ADD_TIMESTAMP}" == "true" ]]; then
-  TIMESTAMP=$(date -u +"%Y-%m-%dT%H-%M-%SZ")
-  if [[ -n ${BRANCH} ]]; then
-    BRANCH="${BRANCH}-${TIMESTAMP}"
-  else
-    BRANCH="${TIMESTAMP}"
-  fi
+SKIP_BRANCH_CREATION=false
+if [[ -z ${FILES_CHANGED} && "${INPUT_AMEND}" != "true" ]]; then
+  SKIP_BRANCH_CREATION=true
+  BRANCH="$(git symbolic-ref --short -q HEAD)"
+  echo -e "\n[INFO] No changes to commit and amend disabled; skipping branch creation."
 fi
-echo -e "\n[INFO] Target branch: ${BRANCH}"
 
-# Enhanced branch handling with proper remote synchronization
-if [[ -n "${INPUT_TARGET_BRANCH}" || "${INPUT_ADD_TIMESTAMP}" == "true" ]]; then
-  # Fetch latest changes from remote
-  echo "[INFO] Fetching latest changes from remote..."
-  git fetch origin || {
-    echo "[WARNING] Could not fetch from remote. Proceeding with local operations."
-  }
-
-  # Check if remote branch exists
-  REMOTE_BRANCH_EXISTS=$(git ls-remote --heads origin "${BRANCH}" 2>/dev/null | wc -l)
-
-  # Improved main branch detection
-  MAIN_BRANCH="main"
-  if git show-ref --verify --quiet "refs/remotes/origin/main"; then
-    MAIN_BRANCH="main"
-  elif git show-ref --verify --quiet "refs/remotes/origin/master"; then
-    MAIN_BRANCH="master"
-  else
-    # Try to get default branch from remote HEAD
-    MAIN_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo "main")
+if [[ "${SKIP_BRANCH_CREATION}" != "true" ]]; then
+  # Setting branch name
+  BRANCH="${INPUT_TARGET_BRANCH:-$(git symbolic-ref --short -q HEAD)}"
+  # Add timestamp to branch name
+  if [[ "${INPUT_ADD_TIMESTAMP}" == "true" ]]; then
+    TIMESTAMP=$(date -u +"%Y-%m-%dT%H-%M-%SZ")
+    if [[ -n ${BRANCH} ]]; then
+      BRANCH="${BRANCH}-${TIMESTAMP}"
+    else
+      BRANCH="${TIMESTAMP}"
+    fi
   fi
-  echo "[INFO] Detected main branch: ${MAIN_BRANCH}"
+  echo -e "\n[INFO] Target branch: ${BRANCH}"
 
-  if [[ ${REMOTE_BRANCH_EXISTS} -gt 0 ]]; then
-    echo "[INFO] Remote branch '${BRANCH}' exists, checking out and updating..."
-    # Check if local branch exists
-    if git show-ref --verify --quiet "refs/heads/${BRANCH}"; then
-      echo "[INFO] Local branch '${BRANCH}' exists, switching to it..."
-      git checkout "${BRANCH}" || {
-        echo "[ERROR] Failed to checkout branch ${BRANCH}"
-        exit 1
-      }
-    else
-      echo "[INFO] Creating local branch '${BRANCH}' from remote..."
-      git checkout -b "${BRANCH}" "origin/${BRANCH}" || {
-        echo "[ERROR] Failed to create local branch from remote"
-        exit 1
-      }
-    fi
+  # Enhanced branch handling with proper remote synchronization
+  if [[ -n "${INPUT_TARGET_BRANCH}" || "${INPUT_ADD_TIMESTAMP}" == "true" ]]; then
+    # Fetch latest changes from remote
+    echo "[INFO] Fetching latest changes from remote..."
+    git fetch origin || {
+      echo "[WARNING] Could not fetch from remote. Proceeding with local operations."
+    }
 
-    # Ensure branch is up-to-date with main/master (only if they're different branches)
-    if [[ "${BRANCH}" != "${MAIN_BRANCH}" ]] && git show-ref --verify --quiet "refs/remotes/origin/${MAIN_BRANCH}"; then
-      echo "[INFO] Rebasing branch onto ${MAIN_BRANCH}..."
-      git rebase "origin/${MAIN_BRANCH}" || {
-        echo "[WARNING] Rebase onto ${MAIN_BRANCH} failed. This may indicate conflicts."
-        echo "[INFO] Attempting to abort the rebase and continue without sync..."
-        git rebase --abort 2>/dev/null || true
-        echo "[INFO] Branch will remain at its current state without sync to ${MAIN_BRANCH}"
-      }
-    fi
-  else
-    echo "[INFO] Remote branch '${BRANCH}' does not exist, creating new branch..."
-    # Ensure starting from the latest main/master
-    if git show-ref --verify --quiet "refs/remotes/origin/${MAIN_BRANCH}"; then
-      echo "[INFO] Creating branch from latest ${MAIN_BRANCH}..."
-      git checkout -b "${BRANCH}" "origin/${MAIN_BRANCH}" || {
-        echo "[ERROR] Failed to create branch from ${MAIN_BRANCH}"
-        exit 1
-      }
+    # Check if remote branch exists
+    REMOTE_BRANCH_EXISTS=$(git ls-remote --heads origin "${BRANCH}" 2>/dev/null | wc -l)
+
+    # Improved main branch detection
+    MAIN_BRANCH="main"
+    if git show-ref --verify --quiet "refs/remotes/origin/main"; then
+      MAIN_BRANCH="main"
+    elif git show-ref --verify --quiet "refs/remotes/origin/master"; then
+      MAIN_BRANCH="master"
     else
-      echo "[INFO] Creating branch from current HEAD..."
-      git checkout -b "${BRANCH}" || {
-        echo "[ERROR] Failed to create branch from HEAD"
-        exit 1
-      }
+      # Try to get default branch from remote HEAD
+      MAIN_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo "main")
+    fi
+    echo "[INFO] Detected main branch: ${MAIN_BRANCH}"
+
+    if [[ ${REMOTE_BRANCH_EXISTS} -gt 0 ]]; then
+      echo "[INFO] Remote branch '${BRANCH}' exists, checking out and updating..."
+      # Check if local branch exists
+      if git show-ref --verify --quiet "refs/heads/${BRANCH}"; then
+        echo "[INFO] Local branch '${BRANCH}' exists, switching to it..."
+        git checkout "${BRANCH}" || {
+          echo "[ERROR] Failed to checkout branch ${BRANCH}"
+          exit 1
+        }
+      else
+        echo "[INFO] Creating local branch '${BRANCH}' from remote..."
+        git checkout -b "${BRANCH}" "origin/${BRANCH}" || {
+          echo "[ERROR] Failed to create local branch from remote"
+          exit 1
+        }
+      fi
+
+      # Ensure branch is up-to-date with main/master (only if they're different branches)
+      if [[ "${BRANCH}" != "${MAIN_BRANCH}" ]] && git show-ref --verify --quiet "refs/remotes/origin/${MAIN_BRANCH}"; then
+        echo "[INFO] Rebasing branch onto ${MAIN_BRANCH}..."
+        git rebase "origin/${MAIN_BRANCH}" || {
+          echo "[WARNING] Rebase onto ${MAIN_BRANCH} failed. This may indicate conflicts."
+          echo "[INFO] Attempting to abort the rebase and continue without sync..."
+          git rebase --abort 2>/dev/null || true
+          echo "[INFO] Branch will remain at its current state without sync to ${MAIN_BRANCH}"
+        }
+      fi
+    else
+      echo "[INFO] Remote branch '${BRANCH}' does not exist, creating new branch..."
+      # Ensure starting from the latest main/master
+      if git show-ref --verify --quiet "refs/remotes/origin/${MAIN_BRANCH}"; then
+        echo "[INFO] Creating branch from latest ${MAIN_BRANCH}..."
+        git checkout -b "${BRANCH}" "origin/${MAIN_BRANCH}" || {
+          echo "[ERROR] Failed to create branch from ${MAIN_BRANCH}"
+          exit 1
+        }
+      else
+        echo "[INFO] Creating branch from current HEAD..."
+        git checkout -b "${BRANCH}" || {
+          echo "[ERROR] Failed to create branch from HEAD"
+          exit 1
+        }
+      fi
     fi
   fi
 fi
@@ -168,7 +177,7 @@ if [[ "${INPUT_FORCE}" == "true" ]]; then
 elif [[ "${INPUT_FORCE_WITH_LEASE}" == "true" ]]; then
   echo "[INFO] Force pushing changes with lease"
   git push --force-with-lease origin "${BRANCH}"
-elif [[ -n ${FILES_CHANGED} || "${INPUT_AMEND}" == "true" || -n "${INPUT_TARGET_BRANCH}" ]]; then
+elif [[ "${SKIP_BRANCH_CREATION}" != "true" && ( -n ${FILES_CHANGED} || "${INPUT_AMEND}" == "true" || -n "${INPUT_TARGET_BRANCH}" ) ]]; then
   echo "[INFO] Pushing changes"
   # Check if branch has upstream tracking
   if git rev-parse --abbrev-ref "${BRANCH}@{upstream}" >/dev/null 2>&1; then

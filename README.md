@@ -74,7 +74,7 @@ This action supports three tag levels for flexible versioning:
 | `force_with_lease`    | No       | `false`          | Whether to use force push with lease (`--force-with-lease`). Safer than `force` as it checks for remote changes. Set `fetch-depth: 0` for `actions/checkout`. |
 | `no_edit`             | No       | `false`          | Whether to not edit commit message when using amend (`--no-edit`).                                                                                            |
 | `organization_domain` | No       | `github.com`     | GitHub Enterprise domain name.                                                                                                                                |
-| `target_branch`       | No       | *current branch* | Name of a new branch to push the code into. Creates branch if not existing.                                                                                   |
+| `target_branch`       | No       | *current branch* | Name of a new branch to push the code into. Creates branch if not existing unless there are no changes and `amend` is false.                                  |
 
 
 ### 📤 Output Parameters
