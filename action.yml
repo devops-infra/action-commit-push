@@ -30,6 +30,22 @@ inputs:
     description: Whether to use force push with lease (--force-with-lease). Safer than force as it checks for remote changes.
     required: false
     default: "false"
+  base_branch:
+    description: Base branch name used for branch sync/reset (defaults to auto-detected main/master).
+    required: false
+    default: ""
+  reset_target_branch:
+    description: Whether to hard-reset target branch to origin/base_branch before committing.
+    required: false
+    default: "false"
+  allow_empty_commit:
+    description: Whether to allow creating an empty commit when there are no file changes.
+    required: false
+    default: "false"
+  fail_on_rebase_conflict:
+    description: Whether to fail when branch rebase onto base branch conflicts.
+    required: false
+    default: "true"
   no_edit:
     description: Whether to not edit commit message when using amend
     required: false

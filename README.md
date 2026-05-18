@@ -14,6 +14,9 @@
 - **🔄 Integration-ready:** Works seamlessly with other DevOps workflows
 - **💪 Force push options:** Support for `--force` and `--force-with-lease` when needed
 - **🔀 Pull request integration:** Perfect companion for automated PR workflows
+- **🎯 Deterministic branch reset:** Optionally reset target branches to a chosen base branch before committing
+- **🧩 Empty commit support:** Optionally create empty commits for no-diff automation flows
+- **🛡️ Rebase conflict control:** Choose strict failure or legacy best-effort behavior on rebase conflicts
 
 
 ## 🔗 Related Actions
@@ -65,18 +68,22 @@ This action supports three tag levels for flexible versioning:
 
 
 ### 🔧 Input Parameters
-| Input Variable        | Required | Default          | Description                                                                                                                                                   |
-|-----------------------|----------|------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `github_token`        | Yes      | `""`             | Personal Access Token for GitHub for pushing the code.                                                                                                        |
-| `add_timestamp`       | No       | `false`          | Whether to add the timestamp to a new branch name. Uses format `%Y-%m-%dT%H-%M-%SZ`.                                                                          |
-| `amend`               | No       | `false`          | Whether to make an amendment to the previous commit (`--amend`). Can be combined with `commit_message` to change the commit message.                          |
-| `commit_prefix`       | No       | `""`             | Prefix added to commit message. Combines with `commit_message`.                                                                                               |
-| `commit_message`      | No       | `""`             | Commit message to set. Combines with `commit_prefix`. Can be used with `amend` to change the commit message.                                                  |
-| `force`               | No       | `false`          | Whether to use force push (`--force`). Use only when you need to overwrite remote changes. Potentially dangerous.                                             |
-| `force_with_lease`    | No       | `false`          | Whether to use force push with lease (`--force-with-lease`). Safer than `force` as it checks for remote changes. Set `fetch-depth: 0` for `actions/checkout`. |
-| `no_edit`             | No       | `false`          | Whether to not edit commit message when using amend (`--no-edit`).                                                                                            |
-| `organization_domain` | No       | `github.com`     | GitHub Enterprise domain name.                                                                                                                                |
-| `target_branch`       | No       | *current branch* | Name of a new branch to push the code into. Creates branch if not existing unless there are no changes and `amend` is false.                                  |
+| Input Variable            | Required | Default          | Description                                                                                                                                                   |
+|---------------------------|----------|------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `github_token`            | Yes      | `""`             | Personal Access Token for GitHub for pushing the code.                                                                                                        |
+| `add_timestamp`           | No       | `false`          | Whether to add the timestamp to a new branch name. Uses format `%Y-%m-%dT%H-%M-%SZ`.                                                                          |
+| `amend`                   | No       | `false`          | Whether to make an amendment to the previous commit (`--amend`). Can be combined with `commit_message` to change the commit message.                          |
+| `commit_prefix`           | No       | `""`             | Prefix added to commit message. Combines with `commit_message`.                                                                                               |
+| `commit_message`          | No       | `""`             | Commit message to set. Combines with `commit_prefix`. Can be used with `amend` to change the commit message.                                                  |
+| `force`                   | No       | `false`          | Whether to use force push (`--force`). Use only when you need to overwrite remote changes. Potentially dangerous.                                             |
+| `force_with_lease`        | No       | `false`          | Whether to use force push with lease (`--force-with-lease`). Safer than `force` as it checks for remote changes. Set `fetch-depth: 0` for `actions/checkout`. |
+| `base_branch`             | No       | `""`             | Base branch used to sync or reset `target_branch`. When empty, the action auto-detects `main`/`master` or origin HEAD.                                        |
+| `reset_target_branch`     | No       | `false`          | Whether to hard-reset `target_branch` to `origin/base_branch` before committing. Recommended for deterministic release branches.                              |
+| `allow_empty_commit`      | No       | `false`          | Whether to create an empty commit when there are no file changes. Useful for workflows that must open a PR with no file diff.                                 |
+| `fail_on_rebase_conflict` | No       | `true`           | Whether to fail the action if rebase onto `base_branch` conflicts. Set to `false` to keep legacy best-effort rebase behavior.                                 |
+| `no_edit`                 | No       | `false`          | Whether to not edit commit message when using amend (`--no-edit`).                                                                                            |
+| `organization_domain`     | No       | `github.com`     | GitHub Enterprise domain name.                                                                                                                                |
+| `target_branch`           | No       | *current branch* | Name of a new branch to push the code into. Creates branch if not existing unless there are no changes and `amend` is false.                                  |
 
 
 ### 📤 Output Parameters

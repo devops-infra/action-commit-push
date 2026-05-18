@@ -6,15 +6,19 @@ set -e
 RET_CODE=0
 
 echo "Inputs:"
-echo "  add_timestamp:       ${INPUT_ADD_TIMESTAMP}"
-echo "  amend:               ${INPUT_AMEND}"
-echo "  commit_prefix:       ${INPUT_COMMIT_PREFIX}"
-echo "  commit_message:      ${INPUT_COMMIT_MESSAGE}"
-echo "  force:               ${INPUT_FORCE}"
-echo "  force_with_lease:    ${INPUT_FORCE_WITH_LEASE}"
-echo "  no_edit:             ${INPUT_NO_EDIT}"
-echo "  organization_domain: ${INPUT_ORGANIZATION_DOMAIN}"
-echo "  target_branch:       ${INPUT_TARGET_BRANCH}"
+echo "  add_timestamp:           ${INPUT_ADD_TIMESTAMP}"
+echo "  amend:                   ${INPUT_AMEND}"
+echo "  commit_prefix:           ${INPUT_COMMIT_PREFIX}"
+echo "  commit_message:          ${INPUT_COMMIT_MESSAGE}"
+echo "  force:                   ${INPUT_FORCE}"
+echo "  force_with_lease:        ${INPUT_FORCE_WITH_LEASE}"
+echo "  base_branch:             ${INPUT_BASE_BRANCH}"
+echo "  reset_target_branch:     ${INPUT_RESET_TARGET_BRANCH}"
+echo "  allow_empty_commit:      ${INPUT_ALLOW_EMPTY_COMMIT}"
+echo "  fail_on_rebase_conflict: ${INPUT_FAIL_ON_REBASE_CONFLICT}"
+echo "  no_edit:                 ${INPUT_NO_EDIT}"
+echo "  organization_domain:     ${INPUT_ORGANIZATION_DOMAIN}"
+echo "  target_branch:           ${INPUT_TARGET_BRANCH}"
 
 # Require github_token
 if [[ -z "${GITHUB_TOKEN}" ]]; then
@@ -40,6 +44,13 @@ get_current_branch() {
   printf '%s' "${branch}"
 }
 
+input_true() {
+  case "${1:-}" in
+    true|TRUE|True|1|yes|YES|Yes|on|ON|On) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
 # Get changed files
 git add -A
 FILES_CHANGED=$(git diff --staged --name-status)
@@ -50,7 +61,7 @@ else
 fi
 
 SKIP_BRANCH_CREATION=false
-if [[ -z ${FILES_CHANGED} && "${INPUT_AMEND}" != "true" ]]; then
+if [[ -z ${FILES_CHANGED} && "${INPUT_AMEND}" != "true" && -z "${INPUT_TARGET_BRANCH}" ]] && ! input_true "${INPUT_ALLOW_EMPTY_COMMIT}"; then
   SKIP_BRANCH_CREATION=true
   BRANCH="$(get_current_branch)"
   echo -e "\n[INFO] No changes to commit and amend disabled; skipping branch creation."
@@ -81,15 +92,18 @@ if [[ "${SKIP_BRANCH_CREATION}" != "true" ]]; then
     # Check if remote branch exists
     REMOTE_BRANCH_EXISTS=$(git ls-remote --heads origin "${BRANCH}" 2>/dev/null | wc -l)
 
-    # Improved main branch detection
-    MAIN_BRANCH="main"
-    if git show-ref --verify --quiet "refs/remotes/origin/main"; then
+    # Improved main branch detection with explicit override
+    MAIN_BRANCH="${INPUT_BASE_BRANCH}"
+    if [[ -z "${MAIN_BRANCH}" ]]; then
       MAIN_BRANCH="main"
-    elif git show-ref --verify --quiet "refs/remotes/origin/master"; then
-      MAIN_BRANCH="master"
-    else
-      # Try to get default branch from remote HEAD
-      MAIN_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo "main")
+      if git show-ref --verify --quiet "refs/remotes/origin/main"; then
+        MAIN_BRANCH="main"
+      elif git show-ref --verify --quiet "refs/remotes/origin/master"; then
+        MAIN_BRANCH="master"
+      else
+        # Try to get default branch from remote HEAD
+        MAIN_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo "main")
+      fi
     fi
     echo "[INFO] Detected main branch: ${MAIN_BRANCH}"
 
@@ -110,15 +124,28 @@ if [[ "${SKIP_BRANCH_CREATION}" != "true" ]]; then
         }
       fi
 
-      # Ensure branch is up-to-date with main/master (only if they're different branches)
+      # Ensure branch is synchronized with base branch
       if [[ "${BRANCH}" != "${MAIN_BRANCH}" ]] && git show-ref --verify --quiet "refs/remotes/origin/${MAIN_BRANCH}"; then
-        echo "[INFO] Rebasing branch onto ${MAIN_BRANCH}..."
-        git rebase "origin/${MAIN_BRANCH}" || {
-          echo "[WARNING] Rebase onto ${MAIN_BRANCH} failed. This may indicate conflicts."
-          echo "[INFO] Attempting to abort the rebase and continue without sync..."
-          git rebase --abort 2>/dev/null || true
-          echo "[INFO] Branch will remain at its current state without sync to ${MAIN_BRANCH}"
-        }
+        if input_true "${INPUT_RESET_TARGET_BRANCH}"; then
+          echo "[INFO] Hard resetting '${BRANCH}' to origin/${MAIN_BRANCH}..."
+          git reset --hard "origin/${MAIN_BRANCH}" || {
+            echo "[ERROR] Failed to hard reset '${BRANCH}' to origin/${MAIN_BRANCH}"
+            exit 1
+          }
+        else
+          echo "[INFO] Rebasing branch onto ${MAIN_BRANCH}..."
+          git rebase "origin/${MAIN_BRANCH}" || {
+            if input_true "${INPUT_FAIL_ON_REBASE_CONFLICT}"; then
+              echo "[ERROR] Rebase onto ${MAIN_BRANCH} failed and fail_on_rebase_conflict=true"
+              git rebase --abort 2>/dev/null || true
+              exit 1
+            fi
+            echo "[WARNING] Rebase onto ${MAIN_BRANCH} failed."
+            echo "[INFO] Attempting to abort the rebase and continue without sync..."
+            git rebase --abort 2>/dev/null || true
+            echo "[INFO] Branch will remain at its current state without sync to ${MAIN_BRANCH}"
+          }
+        fi
       fi
     else
       echo "[INFO] Remote branch '${BRANCH}' does not exist, creating new branch..."
@@ -142,10 +169,12 @@ fi
 
 # Create an auto commit
 COMMIT_PARAMS=()
-COMMIT_PARAMS+=("--allow-empty")
+if input_true "${INPUT_ALLOW_EMPTY_COMMIT}"; then
+  COMMIT_PARAMS+=("--allow-empty")
+fi
 
-# Commit if there are changes OR if we're amending (even without changes)
-if [[ -n ${FILES_CHANGED} || "${INPUT_AMEND}" == "true" ]]; then
+# Commit if there are changes, or amend is requested, or empty commit is allowed
+if [[ -n ${FILES_CHANGED} || "${INPUT_AMEND}" == "true" ]] || input_true "${INPUT_ALLOW_EMPTY_COMMIT}"; then
   if [[ -n ${FILES_CHANGED} ]]; then
     echo "[INFO] Committing changes."
   fi
