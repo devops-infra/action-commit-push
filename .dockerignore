@@ -3,6 +3,7 @@
 
 # Include
 !Dockerfile
-!entrypoint.sh
 !LICENSE
 !README.md
+!entrypoint.sh
+!pip
