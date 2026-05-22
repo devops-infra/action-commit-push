@@ -58,6 +58,10 @@ inputs:
     description: Name of a new branch to push the code into (skipped when no changes and amend is false)
     required: false
     default: ""
+  repository_path:
+    description: Relative path under GITHUB_WORKSPACE to the checked-out repository (use when actions/checkout path is set)
+    required: false
+    default: "."
 outputs:
   files_changed:
     description: List of changed files
