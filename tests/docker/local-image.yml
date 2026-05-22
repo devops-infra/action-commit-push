@@ -23,6 +23,34 @@ commandTests:
     args:
       - -lc
       - test ! -e /git-lfs*.deb
+
+  - name: Entrypoint handles default repository path
+    command: bash
+    args:
+      - -lc
+      - |
+        set -e
+        rm -rf /tmp/ws /tmp/remote.git
+        mkdir -p /tmp/ws
+        git init /tmp/ws
+        git -C /tmp/ws config user.name test
+        git -C /tmp/ws config user.email test@example.com
+        touch /tmp/ws/.keep
+        git -C /tmp/ws add .
+        git -C /tmp/ws commit -m init
+        git init --bare /tmp/remote.git
+        git -C /tmp/ws remote add origin /tmp/remote.git
+        GITHUB_WORKSPACE=/tmp/ws \
+        GITHUB_ACTOR=tester \
+        GITHUB_REPOSITORY=owner/repo \
+        GITHUB_OUTPUT=/tmp/github_output.txt \
+        GITHUB_TOKEN=fake \
+        INPUT_ORGANIZATION_DOMAIN=github.com \
+        INPUT_REPOSITORY_PATH=. \
+        INPUT_AMEND=false \
+        INPUT_ALLOW_EMPTY_COMMIT=false \
+        INPUT_TARGET_BRANCH='' \
+        /entrypoint.sh
 fileExistenceTests:
   - name: entrypoint exists
     path: /entrypoint.sh

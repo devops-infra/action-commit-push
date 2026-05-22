@@ -48,21 +48,24 @@ if [[ ! -d "${REPO_DIR}" ]]; then
   echo "[ERROR] Repository path does not exist: ${REPO_DIR}"
   exit 1
 fi
-if ! git -C "${REPO_DIR}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-  echo "[ERROR] Path is not a git repository: ${REPO_DIR}"
-  exit 1
-fi
-echo "[INFO] Using repository path: ${REPO_DIR}"
 
 # Keep all global git config isolated to a temp file
 export GIT_CONFIG_GLOBAL
 GIT_CONFIG_GLOBAL="$(mktemp /tmp/action-commit-push-git-config-XXXXXX)"
 trap 'rm -f "${GIT_CONFIG_GLOBAL}"' EXIT
 
-# Set git credentials
+# Configure safe directories before git repo validation
 git config --global safe.directory "${GITHUB_WORKSPACE}"
 git config --global safe.directory /github/workspace
 git config --global safe.directory "${REPO_DIR}"
+
+if ! git -C "${REPO_DIR}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  echo "[ERROR] Path is not a git repository: ${REPO_DIR}"
+  exit 1
+fi
+echo "[INFO] Using repository path: ${REPO_DIR}"
+
+# Set git credentials
 git -C "${REPO_DIR}" remote set-url origin "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@${INPUT_ORGANIZATION_DOMAIN}/${GITHUB_REPOSITORY}"
 git -C "${REPO_DIR}" config user.name "${GITHUB_ACTOR}"
 git -C "${REPO_DIR}" config user.email "${GITHUB_ACTOR}@users.noreply.${INPUT_ORGANIZATION_DOMAIN}"
