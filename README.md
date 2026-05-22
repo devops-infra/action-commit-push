@@ -137,7 +137,7 @@ jobs:
           find . -type f -name "*.md" -print0 | xargs -0 sed -i "s/foo/bar/g"
 
       - name: Commit and push changes
-        uses: devops-infra/action-commit-push@v.11.4
+        uses: devops-infra/action-commit-push@v1.2.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           commit_prefix: "[AUTO-COMMIT] "
@@ -234,7 +234,10 @@ This action provides two force push options for different scenarios:
 
 
 ### 🎯 Use specific version
-Run the Action with a specific version tag.
+Pick the tag level based on your stability needs:
+- `vX.Y.Z`: exact immutable release (most predictable)
+- `vX.Y`: latest patch within one minor line
+- `vX`: latest patch within one major line
 
 ```yaml
 name: Run the Action
