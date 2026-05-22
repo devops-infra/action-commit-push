@@ -19,6 +19,7 @@ echo "  fail_on_rebase_conflict: ${INPUT_FAIL_ON_REBASE_CONFLICT}"
 echo "  no_edit:                 ${INPUT_NO_EDIT}"
 echo "  organization_domain:     ${INPUT_ORGANIZATION_DOMAIN}"
 echo "  target_branch:           ${INPUT_TARGET_BRANCH}"
+echo "  repository_path:         ${INPUT_REPOSITORY_PATH}"
 
 # Require github_token
 if [[ -z "${GITHUB_TOKEN}" ]]; then
@@ -28,12 +29,45 @@ if [[ -z "${GITHUB_TOKEN}" ]]; then
   exit 1
 fi
 
+REPOSITORY_PATH="${INPUT_REPOSITORY_PATH:-.}"
+if [[ -z "${REPOSITORY_PATH}" ]]; then
+  REPOSITORY_PATH="."
+fi
+if [[ "${REPOSITORY_PATH}" == /* ]]; then
+  echo "[ERROR] Input 'repository_path' must be a relative path under GITHUB_WORKSPACE."
+  exit 1
+fi
+
+WORKSPACE_DIR="$(realpath -m "${GITHUB_WORKSPACE}")"
+REPO_DIR="$(realpath -m "${GITHUB_WORKSPACE}/${REPOSITORY_PATH}")"
+if [[ "${REPO_DIR}" != "${WORKSPACE_DIR}" && "${REPO_DIR}" != "${WORKSPACE_DIR}"/* ]]; then
+  echo "[ERROR] Input 'repository_path' resolves outside GITHUB_WORKSPACE."
+  exit 1
+fi
+if [[ ! -d "${REPO_DIR}" ]]; then
+  echo "[ERROR] Repository path does not exist: ${REPO_DIR}"
+  exit 1
+fi
+if ! git -C "${REPO_DIR}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  echo "[ERROR] Path is not a git repository: ${REPO_DIR}"
+  exit 1
+fi
+echo "[INFO] Using repository path: ${REPO_DIR}"
+
+# Keep all global git config isolated to a temp file
+export GIT_CONFIG_GLOBAL
+GIT_CONFIG_GLOBAL="$(mktemp /tmp/action-commit-push-git-config-XXXXXX)"
+trap 'rm -f "${GIT_CONFIG_GLOBAL}"' EXIT
+
 # Set git credentials
 git config --global safe.directory "${GITHUB_WORKSPACE}"
 git config --global safe.directory /github/workspace
-git remote set-url origin "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@${INPUT_ORGANIZATION_DOMAIN}/${GITHUB_REPOSITORY}"
-git config --global user.name "${GITHUB_ACTOR}"
-git config --global user.email "${GITHUB_ACTOR}@users.noreply.${INPUT_ORGANIZATION_DOMAIN}"
+git config --global safe.directory "${REPO_DIR}"
+git -C "${REPO_DIR}" remote set-url origin "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@${INPUT_ORGANIZATION_DOMAIN}/${GITHUB_REPOSITORY}"
+git -C "${REPO_DIR}" config user.name "${GITHUB_ACTOR}"
+git -C "${REPO_DIR}" config user.email "${GITHUB_ACTOR}@users.noreply.${INPUT_ORGANIZATION_DOMAIN}"
+
+cd "${REPO_DIR}"
 
 get_current_branch() {
   local branch

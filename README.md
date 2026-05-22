@@ -84,6 +84,7 @@ This action supports three tag levels for flexible versioning:
 | `no_edit`                 | No       | `false`          | Whether to not edit commit message when using amend (`--no-edit`).                                                                                            |
 | `organization_domain`     | No       | `github.com`     | GitHub Enterprise domain name.                                                                                                                                |
 | `target_branch`           | No       | *current branch* | Name of a new branch to push the code into. Creates branch if not existing unless there are no changes and `amend` is false.                                  |
+| `repository_path`         | No       | `.`              | Relative path under `${{ github.workspace }}` where the repository is checked out. Set this when `actions/checkout` uses `path:`.                             |
 
 
 ### 📤 Output Parameters
@@ -184,6 +185,34 @@ jobs:
           commit_message: ${{ github.event.inputs.new_commit_message }}
           amend: true
           force_with_lease: true  # Safer force push option
+```
+
+### 📁 Custom checkout path example
+Commit and push when `actions/checkout` uses a custom path.
+
+```yaml
+name: Commit from custom checkout path
+on:
+  push
+jobs:
+  change-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository into custom path
+        uses: actions/checkout@v6
+        with:
+          path: work/repo
+
+      - name: Change something in checked out repository
+        run: |
+          echo "Updated" >> work/repo/README.md
+
+      - name: Commit and push changes
+        uses: devops-infra/action-commit-push@v1.2.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          repository_path: work/repo
+          commit_message: "Update README"
 ```
 
 ## 📝 Amend Options
