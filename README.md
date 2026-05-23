@@ -282,7 +282,7 @@ jobs:
       - uses: devops-infra/action-commit-push@v1.3.1
         id: Pin patch version
 
-      - uses: devops-infra/action-commit-push@v1.1
+      - uses: devops-infra/action-commit-push@v1.3
         id: Pin minor version
 
       - uses: devops-infra/action-commit-push@v1
