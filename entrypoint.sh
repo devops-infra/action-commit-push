@@ -98,6 +98,7 @@ else
 fi
 
 SKIP_BRANCH_CREATION=false
+RESET_REQUIRES_FORCE_WITH_LEASE=false
 if [[ -z ${FILES_CHANGED} && "${INPUT_AMEND}" != "true" && -z "${INPUT_TARGET_BRANCH}" ]] && ! input_true "${INPUT_ALLOW_EMPTY_COMMIT}"; then
   SKIP_BRANCH_CREATION=true
   BRANCH="$(get_current_branch)"
@@ -169,6 +170,7 @@ if [[ "${SKIP_BRANCH_CREATION}" != "true" ]]; then
             echo "[ERROR] Failed to hard reset '${BRANCH}' to origin/${MAIN_BRANCH}"
             exit 1
           }
+          RESET_REQUIRES_FORCE_WITH_LEASE=true
         else
           echo "[INFO] Rebasing branch onto ${MAIN_BRANCH}..."
           git rebase "origin/${MAIN_BRANCH}" || {
@@ -249,8 +251,12 @@ fi
 if [[ "${INPUT_FORCE}" == "true" ]]; then
   echo "[INFO] Force pushing changes using --force"
   git push --force origin "${BRANCH}"
-elif [[ "${INPUT_FORCE_WITH_LEASE}" == "true" ]]; then
-  echo "[INFO] Force pushing changes with lease"
+elif [[ "${INPUT_FORCE_WITH_LEASE}" == "true" || "${RESET_REQUIRES_FORCE_WITH_LEASE}" == "true" ]]; then
+  if [[ "${RESET_REQUIRES_FORCE_WITH_LEASE}" == "true" && "${INPUT_FORCE_WITH_LEASE}" != "true" ]]; then
+    echo "[INFO] Force pushing changes with lease (required after reset_target_branch=true)"
+  else
+    echo "[INFO] Force pushing changes with lease"
+  fi
   git push --force-with-lease origin "${BRANCH}"
 elif [[ "${SKIP_BRANCH_CREATION}" != "true" && ( -n ${FILES_CHANGED} || "${INPUT_AMEND}" == "true" || -n "${INPUT_TARGET_BRANCH}" ) ]]; then
   echo "[INFO] Pushing changes"
