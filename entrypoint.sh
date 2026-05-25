@@ -91,6 +91,7 @@ input_true() {
 # Get changed files
 git add -A
 FILES_CHANGED=$(git diff --staged --name-status)
+FILES_CHANGED_OUTPUT="${FILES_CHANGED}"
 if [[ -n ${FILES_CHANGED} ]]; then
   echo -e "\n[INFO] Files changed:\n${FILES_CHANGED}"
 else
@@ -99,6 +100,7 @@ fi
 
 SKIP_BRANCH_CREATION=false
 RESET_REQUIRES_FORCE_WITH_LEASE=false
+COMMIT_CREATED=false
 if [[ -z ${FILES_CHANGED} && "${INPUT_AMEND}" != "true" && -z "${INPUT_TARGET_BRANCH}" ]] && ! input_true "${INPUT_ALLOW_EMPTY_COMMIT}"; then
   SKIP_BRANCH_CREATION=true
   BRANCH="$(get_current_branch)"
@@ -214,6 +216,7 @@ fi
 
 # Commit if there are changes, or amend is requested, or empty commit is allowed
 if [[ -n ${FILES_CHANGED} || "${INPUT_AMEND}" == "true" ]] || input_true "${INPUT_ALLOW_EMPTY_COMMIT}"; then
+  COMMIT_CREATED=true
   if [[ -n ${FILES_CHANGED} ]]; then
     echo "[INFO] Committing changes."
   fi
@@ -247,6 +250,10 @@ if [[ -n ${FILES_CHANGED} || "${INPUT_AMEND}" == "true" ]] || input_true "${INPU
   fi
 fi
 
+if [[ "${COMMIT_CREATED}" == "true" ]]; then
+  FILES_CHANGED_OUTPUT="$(git diff-tree --no-commit-id --name-status -r --root HEAD)"
+fi
+
 # Push
 if [[ "${INPUT_FORCE}" == "true" ]]; then
   echo "[INFO] Force pushing changes using --force"
@@ -273,7 +280,7 @@ fi
 # Finish
 {
   echo "files_changed<<EOF"
-  echo -e "${FILES_CHANGED}"
+  echo -e "${FILES_CHANGED_OUTPUT}"
   echo "EOF"
   echo "branch_name=${BRANCH}"
 } >> "${GITHUB_OUTPUT}"
