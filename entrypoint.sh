@@ -38,8 +38,60 @@ if [[ "${REPOSITORY_PATH}" == /* ]]; then
   exit 1
 fi
 
-WORKSPACE_DIR="$(realpath -m "${GITHUB_WORKSPACE}")"
-REPO_DIR="$(realpath -m "${GITHUB_WORKSPACE}/${REPOSITORY_PATH}")"
+if [[ -z "${GITHUB_WORKSPACE}" || ! -d "${GITHUB_WORKSPACE}" ]]; then
+  echo "[ERROR] GITHUB_WORKSPACE must point to an existing directory."
+  exit 1
+fi
+
+normalize_relative_path() {
+  local path part normalized
+  local -a parts stack
+
+  path="${1:-.}"
+  IFS='/' read -r -a parts <<< "${path}"
+  stack=()
+
+  for part in "${parts[@]}"; do
+    case "${part}" in
+      ""|".")
+        ;;
+      "..")
+        if (( ${#stack[@]} > 0 )) && [[ "${stack[-1]}" != ".." ]]; then
+          unset 'stack[-1]'
+        else
+          stack+=("..")
+        fi
+        ;;
+      *)
+        stack+=("${part}")
+        ;;
+    esac
+  done
+
+  if (( ${#stack[@]} == 0 )); then
+    printf '.'
+    return
+  fi
+
+  normalized="${stack[0]}"
+  for part in "${stack[@]:1}"; do
+    normalized+="/${part}"
+  done
+  printf '%s' "${normalized}"
+}
+
+WORKSPACE_DIR="$(cd "${GITHUB_WORKSPACE}" && pwd -P)"
+NORMALIZED_REPOSITORY_PATH="$(normalize_relative_path "${REPOSITORY_PATH}")"
+if [[ "${NORMALIZED_REPOSITORY_PATH}" == ".." || "${NORMALIZED_REPOSITORY_PATH}" == ../* ]]; then
+  echo "[ERROR] Input 'repository_path' resolves outside GITHUB_WORKSPACE."
+  exit 1
+fi
+
+if [[ "${NORMALIZED_REPOSITORY_PATH}" == "." ]]; then
+  REPO_DIR="${WORKSPACE_DIR}"
+else
+  REPO_DIR="${WORKSPACE_DIR}/${NORMALIZED_REPOSITORY_PATH}"
+fi
 if [[ "${REPO_DIR}" != "${WORKSPACE_DIR}" && "${REPO_DIR}" != "${WORKSPACE_DIR}"/* ]]; then
   echo "[ERROR] Input 'repository_path' resolves outside GITHUB_WORKSPACE."
   exit 1
