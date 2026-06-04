@@ -75,12 +75,9 @@ tasks:
         fi
 
   dependency:update:
-    desc: 'No-op: no dedicated dependency updater configured for this profile'
+    desc: Update dependency metadata for this repository
     cmds:
-      - |
-        echo "INFO: No dedicated dependency updater configured for this repository profile."
-        echo "INFO: Dependabot handles GitHub Actions and package metadata updates."
-        echo "INFO: Keep this task as a safe no-op until a repo-specific dependency updater is defined."
+      - task: packages:update
 
   version:get:
     desc: Get current version
@@ -255,7 +252,22 @@ tasks:
           exit 0
         fi
 
-        base_image="$(sed -nE 's/^FROM[[:space:]]+([^[:space:]]+).*/\1/p' Dockerfile | head -1)"
+        base_image="$(awk '
+          toupper($1) == "FROM" {
+            i = 2
+            while (i <= NF && $i ~ /^--/) {
+              i++
+            }
+            if (i <= NF) {
+              image = $i
+            }
+          }
+          END {
+            if (image != "") {
+              print image
+            }
+          }
+        ' Dockerfile)"
         if [ -z "$base_image" ]; then
           echo "INFO: Could not resolve base image; nothing to update"
           exit 0

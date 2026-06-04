@@ -6,4 +6,4 @@
 !LICENSE
 !README.md
 !entrypoint.sh
-!pip
+!alpine-packages.txt
