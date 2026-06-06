@@ -53,7 +53,7 @@ This action supports three tag levels for flexible versioning:
 
 ```yaml
       - name: Run the Action
-        uses: devops-infra/action-commit-push@v1.4.0
+        uses: devops-infra/action-commit-push@v1.5.0
         with:
           github_token: "${{ secrets.GITHUB_TOKEN }}"
           add_timestamp: true
@@ -125,7 +125,7 @@ jobs:
           find . -type f -name "*.md" -print0 | xargs -0 sed -i "s/foo/bar/g"
 
       - name: Commit and push changes
-        uses: devops-infra/action-commit-push@v1.4.0
+        uses: devops-infra/action-commit-push@v1.5.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           commit_message: "Replace foo with bar"
@@ -149,7 +149,7 @@ jobs:
           find . -type f -name "*.md" -print0 | xargs -0 sed -i "s/foo/bar/g"
 
       - name: Commit and push changes
-        uses: devops-infra/action-commit-push@v1.4.0
+        uses: devops-infra/action-commit-push@v1.5.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           commit_prefix: "[AUTO-COMMIT] "
@@ -190,7 +190,7 @@ jobs:
           echo "Additional content" >> README.md
 
       - name: Amend and force push with lease
-        uses: devops-infra/action-commit-push@v1.4.0
+        uses: devops-infra/action-commit-push@v1.5.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           commit_message: ${{ github.event.inputs.new_commit_message }}
@@ -219,7 +219,7 @@ jobs:
           echo "Updated" >> work/repo/README.md
 
       - name: Commit and push changes
-        uses: devops-infra/action-commit-push@v1.4.0
+        uses: devops-infra/action-commit-push@v1.5.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           repository_path: work/repo
@@ -231,7 +231,7 @@ Override the git author/committer identity used by the action.
 
 ```yaml
 - name: Commit and push with custom identity
-  uses: devops-infra/action-commit-push@v1.4.0
+  uses: devops-infra/action-commit-push@v1.5.0
   with:
     github_token: ${{ secrets.GITHUB_TOKEN }}
     commit_message: "test(commit-push): custom identity"
@@ -258,7 +258,7 @@ This action can sign generated commits by configuring repository-local git signi
 
 ```yaml
 - name: Commit and push signed changes
-  uses: devops-infra/action-commit-push@v1.4.0
+  uses: devops-infra/action-commit-push@v1.5.0
   with:
     github_token: ${{ secrets.GITHUB_TOKEN }}
     commit_message: "test(commit-push): signed with gpg"
@@ -271,7 +271,7 @@ This action can sign generated commits by configuring repository-local git signi
 
 ```yaml
 - name: Commit and push SSH-signed changes
-  uses: devops-infra/action-commit-push@v1.4.0
+  uses: devops-infra/action-commit-push@v1.5.0
   with:
     github_token: ${{ secrets.GITHUB_TOKEN }}
     commit_message: "test(commit-push): signed with ssh"
@@ -291,7 +291,7 @@ When using `amend: true`, you have several options for handling the commit messa
 
 1. **Change the commit message**: Set `commit_message` to provide a new message
    ```yaml
-   - uses: devops-infra/action-commit-push@v1.4.0
+   - uses: devops-infra/action-commit-push@v1.5.0
      with:
        github_token: ${{ secrets.GITHUB_TOKEN }}
        commit_message: "Fixed typo in documentation"
@@ -301,7 +301,7 @@ When using `amend: true`, you have several options for handling the commit messa
 
 2. **Keep existing message**: Set `no_edit: true` to keep the original commit message
    ```yaml
-   - uses: devops-infra/action-commit-push@v1.4.0
+   - uses: devops-infra/action-commit-push@v1.5.0
      with:
        github_token: ${{ secrets.GITHUB_TOKEN }}
        amend: true
@@ -350,10 +350,10 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: devops-infra/action-commit-push@v1.4.0
+      - uses: devops-infra/action-commit-push@v1.5.0
         id: Pin patch version
 
-      - uses: devops-infra/action-commit-push@v1.4
+      - uses: devops-infra/action-commit-push@v1.5
         id: Pin minor version
 
       - uses: devops-infra/action-commit-push@v1
