@@ -22,6 +22,18 @@ inputs:
     description: Commit message to set
     required: false
     default: ""
+  signing_mode:
+    description: Commit signing mode. Supported values are gpg and ssh.
+    required: false
+    default: ""
+  signing_key:
+    description: Signing key material. For gpg use an ASCII-armored private key export; for ssh use a private key in OpenSSH or PEM format.
+    required: false
+    default: ""
+  signing_passphrase:
+    description: Optional passphrase for the signing key.
+    required: false
+    default: ""
   force:
     description: Whether to use force push (--force). Use only when you need to overwrite remote changes. Potentially dangerous.
     required: false

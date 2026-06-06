@@ -1,3 +1,5 @@
 bash~=5.3
 git~=2.52
 git-lfs~=3.7
+gnupg~=2.4
+openssh-keygen~=10.2
