@@ -246,6 +246,10 @@ echo "[INFO] Using repository path: ${REPO_DIR}"
 git -C "${REPO_DIR}" remote set-url origin "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@${INPUT_ORGANIZATION_DOMAIN}/${GITHUB_REPOSITORY}"
 git -C "${REPO_DIR}" config user.name "${INPUT_USER_NAME:-${GITHUB_ACTOR}}"
 git -C "${REPO_DIR}" config user.email "${INPUT_USER_EMAIL:-${GITHUB_ACTOR}@users.noreply.${INPUT_ORGANIZATION_DOMAIN}}"
+export GIT_AUTHOR_NAME="${INPUT_USER_NAME:-${GITHUB_ACTOR}}"
+export GIT_AUTHOR_EMAIL="${INPUT_USER_EMAIL:-${GITHUB_ACTOR}@users.noreply.${INPUT_ORGANIZATION_DOMAIN}}"
+export GIT_COMMITTER_NAME="${INPUT_USER_NAME:-${GITHUB_ACTOR}}"
+export GIT_COMMITTER_EMAIL="${INPUT_USER_EMAIL:-${GITHUB_ACTOR}@users.noreply.${INPUT_ORGANIZATION_DOMAIN}}"
 setup_commit_signing
 
 cd "${REPO_DIR}"
