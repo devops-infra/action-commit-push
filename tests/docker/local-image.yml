@@ -152,6 +152,7 @@ commandTests:
         git init --bare /tmp/remote.git
         git -C /tmp/ws remote add origin /tmp/remote.git
         echo "identity override" > /tmp/ws/e2e-identity.txt
+        set +e
         GITHUB_WORKSPACE=/tmp/ws \
         GITHUB_ACTOR=tester \
         GITHUB_REPOSITORY=owner/repo \
@@ -166,6 +167,9 @@ commandTests:
         INPUT_USER_NAME='Release Automation' \
         INPUT_USER_EMAIL='release-bot@example.com' \
         /entrypoint.sh
+        rc=$?
+        set -e
+        test "$rc" -ne 0
         test "$(git -C /tmp/ws log -1 --format=%an)" = "Release Automation"
         test "$(git -C /tmp/ws log -1 --format=%ae)" = "release-bot@example.com"
         test "$(git -C /tmp/ws log -1 --format=%cn)" = "Release Automation"
