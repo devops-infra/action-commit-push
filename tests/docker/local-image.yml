@@ -10,7 +10,7 @@ commandTests:
     command: bash
     args:
       - -lc
-      - command -v bash >/dev/null 2>&1 && command -v git >/dev/null 2>&1 && command -v git-lfs >/dev/null 2>&1
+      - command -v bash >/dev/null 2>&1 && command -v git >/dev/null 2>&1 && command -v git-lfs >/dev/null 2>&1 && command -v gpg >/dev/null 2>&1 && command -v ssh-keygen >/dev/null 2>&1
 
   - name: Temporary and APK cache cleaned
     command: bash
@@ -48,6 +48,92 @@ commandTests:
         INPUT_ALLOW_EMPTY_COMMIT=false \
         INPUT_TARGET_BRANCH='' \
         /entrypoint.sh
+
+  - name: Entrypoint signs empty commit with GPG
+    command: bash
+    args:
+      - -lc
+      - |
+        set -euo pipefail
+        rm -rf /tmp/ws /tmp/remote.git /tmp/gpg-gen /tmp/gpg-verify /tmp/gpg-public.asc /tmp/gpg-private.asc /tmp/github_output.txt
+        mkdir -p /tmp/ws /tmp/gpg-gen /tmp/gpg-verify
+        chmod 700 /tmp/gpg-gen /tmp/gpg-verify
+        export GNUPGHOME=/tmp/gpg-gen
+        cat > /tmp/gpg-batch <<'EOF'
+        Key-Type: RSA
+        Key-Length: 2048
+        Name-Real: Local Test
+        Name-Email: tester@users.noreply.github.com
+        Passphrase: localpass
+        Expire-Date: 0
+        %commit
+        EOF
+        gpg --batch --generate-key /tmp/gpg-batch
+        gpg --batch --pinentry-mode loopback --passphrase localpass --armor --export-secret-keys tester@users.noreply.github.com > /tmp/gpg-private.asc
+        gpg --armor --export tester@users.noreply.github.com > /tmp/gpg-public.asc
+        unset GNUPGHOME
+        git init /tmp/ws
+        git -C /tmp/ws config user.name test
+        git -C /tmp/ws config user.email test@example.com
+        touch /tmp/ws/.keep
+        git -C /tmp/ws add .
+        git -C /tmp/ws commit -m init
+        git init --bare /tmp/remote.git
+        git -C /tmp/ws remote add origin /tmp/remote.git
+        GITHUB_WORKSPACE=/tmp/ws \
+        GITHUB_ACTOR=tester \
+        GITHUB_REPOSITORY=owner/repo \
+        GITHUB_OUTPUT=/tmp/github_output.txt \
+        GITHUB_TOKEN=fake \
+        INPUT_ORGANIZATION_DOMAIN=github.com \
+        INPUT_REPOSITORY_PATH=. \
+        INPUT_ALLOW_EMPTY_COMMIT=true \
+        INPUT_COMMIT_MESSAGE='gpg signed empty commit' \
+        INPUT_AMEND=false \
+        INPUT_TARGET_BRANCH='' \
+        INPUT_SIGNING_MODE=gpg \
+        INPUT_SIGNING_KEY="$(cat /tmp/gpg-private.asc)" \
+        INPUT_SIGNING_PASSPHRASE='localpass' \
+        /entrypoint.sh
+        export GNUPGHOME=/tmp/gpg-verify
+        gpg --import /tmp/gpg-public.asc >/dev/null 2>&1
+        git -C /tmp/ws verify-commit HEAD
+
+  - name: Entrypoint signs empty commit with SSH
+    command: bash
+    args:
+      - -lc
+      - |
+        set -euo pipefail
+        rm -rf /tmp/ws /tmp/remote.git /tmp/ssh-signing-key /tmp/ssh-signing-key.pub /tmp/allowed_signers /tmp/github_output.txt
+        mkdir -p /tmp/ws
+        ssh-keygen -q -t ed25519 -N '' -C tester@users.noreply.github.com -f /tmp/ssh-signing-key
+        git init /tmp/ws
+        git -C /tmp/ws config user.name test
+        git -C /tmp/ws config user.email test@example.com
+        touch /tmp/ws/.keep
+        git -C /tmp/ws add .
+        git -C /tmp/ws commit -m init
+        git init --bare /tmp/remote.git
+        git -C /tmp/ws remote add origin /tmp/remote.git
+        GITHUB_WORKSPACE=/tmp/ws \
+        GITHUB_ACTOR=tester \
+        GITHUB_REPOSITORY=owner/repo \
+        GITHUB_OUTPUT=/tmp/github_output.txt \
+        GITHUB_TOKEN=fake \
+        INPUT_ORGANIZATION_DOMAIN=github.com \
+        INPUT_REPOSITORY_PATH=. \
+        INPUT_ALLOW_EMPTY_COMMIT=true \
+        INPUT_COMMIT_MESSAGE='ssh signed empty commit' \
+        INPUT_AMEND=false \
+        INPUT_TARGET_BRANCH='' \
+        INPUT_SIGNING_MODE=ssh \
+        INPUT_SIGNING_KEY="$(cat /tmp/ssh-signing-key)" \
+        /entrypoint.sh
+        printf 'tester@users.noreply.github.com %s\n' "$(cat /tmp/ssh-signing-key.pub)" > /tmp/allowed_signers
+        git -C /tmp/ws config gpg.format ssh
+        git -C /tmp/ws config gpg.ssh.allowedSignersFile /tmp/allowed_signers
+        git -C /tmp/ws verify-commit HEAD
 fileExistenceTests:
   - name: entrypoint exists
     path: /entrypoint.sh

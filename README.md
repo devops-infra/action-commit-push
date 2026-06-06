@@ -9,6 +9,7 @@
 
 ## ✨ Features
 - **📝 Custom commit messages:** Add custom prefixes and messages to commits
+- **🔏 Commit signing:** Sign generated commits with GPG or SSH keys
 - **🌿 Branch management:** Create new branches automatically with optional timestamps
 - **⏰ Timestamp support:** Add timestamps to branch names for cron-based updates
 - **🔄 Integration-ready:** Works seamlessly with other DevOps workflows
@@ -59,6 +60,9 @@ This action supports three tag levels for flexible versioning:
           amend: false
           commit_prefix: "[AUTO]"
           commit_message: "Automatic commit"
+          signing_mode: ""
+          signing_key: ""
+          signing_passphrase: ""
           force: false
           force_with_lease: false
           no_edit: false
@@ -75,6 +79,9 @@ This action supports three tag levels for flexible versioning:
 | `amend`                   | No       | `false`          | Whether to make an amendment to the previous commit (`--amend`). Can be combined with `commit_message` to change the commit message.                          |
 | `commit_prefix`           | No       | `""`             | Prefix added to commit message. Combines with `commit_message`.                                                                                               |
 | `commit_message`          | No       | `""`             | Commit message to set. Combines with `commit_prefix`. Can be used with `amend` to change the commit message.                                                  |
+| `signing_mode`            | No       | `""`             | Commit signing mode. Supported values are `gpg` and `ssh`. Leave empty to disable signing.                                                                    |
+| `signing_key`             | No       | `""`             | Signing key material. For `gpg`, provide an ASCII-armored private key export. For `ssh`, provide a private key in OpenSSH or PEM format.                     |
+| `signing_passphrase`      | No       | `""`             | Optional passphrase for the signing key. Passphrase-protected GPG keys are supported. Encrypted SSH signing keys are rejected in the current runtime.         |
 | `force`                   | No       | `false`          | Whether to use force push (`--force`). Use only when you need to overwrite remote changes. Potentially dangerous.                                             |
 | `force_with_lease`        | No       | `false`          | Whether to use force push with lease (`--force-with-lease`). Safer than `force` as it checks for remote changes. Set `fetch-depth: 0` for `actions/checkout`. |
 | `base_branch`             | No       | `""`             | Base branch used to sync or reset `target_branch`. When empty, the action auto-detects `main`/`master` or origin HEAD.                                        |
@@ -214,6 +221,48 @@ jobs:
           repository_path: work/repo
           commit_message: "Update README"
 ```
+
+## 🔏 Commit Signing
+
+This action can sign generated commits by configuring repository-local git signing settings at runtime.
+
+- `signing_mode: gpg` imports an ASCII-armored private OpenPGP key into an isolated temporary `GNUPGHOME`.
+- `signing_mode: ssh` uses an SSH private key file and git's SSH signing mode.
+- Temporary key material is written outside the repository and removed when the container exits.
+- Passphrase-protected GPG keys are supported through non-interactive loopback pinentry.
+- Encrypted SSH signing keys are currently rejected explicitly instead of falling back to interactive prompts.
+
+### 🔐 GPG signing example
+
+```yaml
+- name: Commit and push signed changes
+  uses: devops-infra/action-commit-push@v1.3.4
+  with:
+    github_token: ${{ secrets.GITHUB_TOKEN }}
+    commit_message: "test(commit-push): signed with gpg"
+    signing_mode: gpg
+    signing_key: ${{ secrets.GPG_PRIVATE_KEY }}
+    signing_passphrase: ${{ secrets.GPG_PASSPHRASE }}
+```
+
+### 🔐 SSH signing example
+
+```yaml
+- name: Commit and push SSH-signed changes
+  uses: devops-infra/action-commit-push@v1.3.4
+  with:
+    github_token: ${{ secrets.GITHUB_TOKEN }}
+    commit_message: "test(commit-push): signed with ssh"
+    signing_mode: ssh
+    signing_key: ${{ secrets.SSH_SIGNING_KEY }}
+```
+
+### 🩺 Signing troubleshooting
+
+- `Failed to import GPG signing key` usually means the secret is not an ASCII-armored private key export.
+- `Failed to read SSH signing key` usually means the secret is not a valid private key.
+- `Encrypted SSH signing keys are not supported in this runtime` means the key must be provided without a passphrase.
+- If downstream verification fails, confirm your verifier trusts the matching public key and uses git's corresponding `gpg.format`.
 
 ## 📝 Amend Options
 When using `amend: true`, you have several options for handling the commit message:

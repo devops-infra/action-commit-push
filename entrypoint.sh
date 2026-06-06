@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -eo pipefail
 
 # Return code
 RET_CODE=0
@@ -10,6 +10,7 @@ echo "  add_timestamp:           ${INPUT_ADD_TIMESTAMP}"
 echo "  amend:                   ${INPUT_AMEND}"
 echo "  commit_prefix:           ${INPUT_COMMIT_PREFIX}"
 echo "  commit_message:          ${INPUT_COMMIT_MESSAGE}"
+echo "  signing_mode:            ${INPUT_SIGNING_MODE}"
 echo "  force:                   ${INPUT_FORCE}"
 echo "  force_with_lease:        ${INPUT_FORCE_WITH_LEASE}"
 echo "  base_branch:             ${INPUT_BASE_BRANCH}"
@@ -80,6 +81,125 @@ normalize_relative_path() {
   printf '%s' "${normalized}"
 }
 
+input_true() {
+  case "${1:-}" in
+    true|TRUE|True|1|yes|YES|Yes|on|ON|On) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+create_executable_file() {
+  local target_path="$1"
+  shift
+  cat > "${target_path}" <<EOF
+$*
+EOF
+  chmod 700 "${target_path}"
+}
+
+# shellcheck disable=SC2329
+cleanup() {
+  rm -f "${GIT_CONFIG_GLOBAL:-}"
+  if [[ -n "${ACTION_TMP_DIR:-}" && -d "${ACTION_TMP_DIR}" ]]; then
+    rm -rf "${ACTION_TMP_DIR}"
+  fi
+}
+
+setup_gpg_signing() {
+  local key_file fingerprint wrapper_path
+
+  echo "[INFO] Enabling GPG commit signing."
+  export GNUPGHOME="${ACTION_TMP_DIR}/gnupg"
+  mkdir -p "${GNUPGHOME}"
+  chmod 700 "${GNUPGHOME}"
+
+  key_file="${ACTION_TMP_DIR}/gpg-private-key.asc"
+  printf '%s\n' "${INPUT_SIGNING_KEY}" > "${key_file}"
+  chmod 600 "${key_file}"
+
+  if ! gpg --batch --import "${key_file}" >/dev/null 2>&1; then
+    echo "[ERROR] Failed to import GPG signing key."
+    exit 1
+  fi
+
+  fingerprint="$(
+    gpg --batch --with-colons --list-secret-keys 2>/dev/null \
+      | awk -F: '$1 == "fpr" { print $10; exit }'
+  )"
+  if [[ -z "${fingerprint}" ]]; then
+    echo "[ERROR] No secret GPG key available after import."
+    exit 1
+  fi
+
+  if [[ -n "${INPUT_SIGNING_PASSPHRASE:-}" ]]; then
+    export ACTION_COMMIT_PUSH_GPG_PASSPHRASE_FILE="${ACTION_TMP_DIR}/gpg-passphrase"
+    printf '%s' "${INPUT_SIGNING_PASSPHRASE}" > "${ACTION_COMMIT_PUSH_GPG_PASSPHRASE_FILE}"
+    chmod 600 "${ACTION_COMMIT_PUSH_GPG_PASSPHRASE_FILE}"
+  fi
+
+  wrapper_path="${ACTION_TMP_DIR}/gpg-wrapper"
+  # shellcheck disable=SC2016
+  create_executable_file "${wrapper_path}" '#!/usr/bin/env bash
+set -euo pipefail
+if [[ -n "${ACTION_COMMIT_PUSH_GPG_PASSPHRASE_FILE:-}" ]]; then
+  exec gpg --batch --yes --pinentry-mode loopback --passphrase-file "${ACTION_COMMIT_PUSH_GPG_PASSPHRASE_FILE}" "$@"
+fi
+exec gpg --batch --yes --pinentry-mode loopback "$@"'
+
+  git config --global user.signingkey "${fingerprint}"
+  git config --global commit.gpgsign true
+  git config --global gpg.program "${wrapper_path}"
+}
+
+setup_ssh_signing() {
+  local key_path
+
+  echo "[INFO] Enabling SSH commit signing."
+  key_path="${ACTION_TMP_DIR}/ssh-signing-key"
+  printf '%s\n' "${INPUT_SIGNING_KEY}" > "${key_path}"
+  chmod 600 "${key_path}"
+
+  if ! ssh-keygen -y -f "${key_path}" >/dev/null 2>&1; then
+    if [[ -n "${INPUT_SIGNING_PASSPHRASE:-}" ]]; then
+      echo "[ERROR] Encrypted SSH signing keys are not supported in this runtime."
+    else
+      echo "[ERROR] Failed to read SSH signing key."
+    fi
+    exit 1
+  fi
+
+  git config --global gpg.format ssh
+  git config --global user.signingkey "${key_path}"
+  git config --global commit.gpgsign true
+}
+
+setup_commit_signing() {
+  local mode
+
+  mode="${INPUT_SIGNING_MODE:-}"
+  if [[ -z "${mode}" ]]; then
+    return
+  fi
+
+  if [[ -z "${INPUT_SIGNING_KEY:-}" ]]; then
+    echo "[ERROR] Input 'signing_key' is required when signing_mode is set."
+    exit 1
+  fi
+
+  case "${mode}" in
+    gpg)
+      setup_gpg_signing
+      ;;
+    ssh)
+      setup_ssh_signing
+      ;;
+    *)
+      echo "[ERROR] Unsupported signing_mode '${mode}'. Supported values: gpg, ssh."
+      exit 1
+      ;;
+  esac
+}
+
 WORKSPACE_DIR="$(cd "${GITHUB_WORKSPACE}" && pwd -P)"
 NORMALIZED_REPOSITORY_PATH="$(normalize_relative_path "${REPOSITORY_PATH}")"
 if [[ "${NORMALIZED_REPOSITORY_PATH}" == ".." || "${NORMALIZED_REPOSITORY_PATH}" == ../* ]]; then
@@ -101,10 +221,13 @@ if [[ ! -d "${REPO_DIR}" ]]; then
   exit 1
 fi
 
+ACTION_TMP_DIR="$(mktemp -d /tmp/action-commit-push-XXXXXX)"
+trap cleanup EXIT
+
 # Keep all global git config isolated to a temp file
 export GIT_CONFIG_GLOBAL
-GIT_CONFIG_GLOBAL="$(mktemp /tmp/action-commit-push-git-config-XXXXXX)"
-trap 'rm -f "${GIT_CONFIG_GLOBAL}"' EXIT
+GIT_CONFIG_GLOBAL="${ACTION_TMP_DIR}/gitconfig-global"
+: > "${GIT_CONFIG_GLOBAL}"
 
 # Configure safe directories before git repo validation
 git config --global safe.directory "${GITHUB_WORKSPACE}"
@@ -121,6 +244,7 @@ echo "[INFO] Using repository path: ${REPO_DIR}"
 git -C "${REPO_DIR}" remote set-url origin "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@${INPUT_ORGANIZATION_DOMAIN}/${GITHUB_REPOSITORY}"
 git -C "${REPO_DIR}" config user.name "${GITHUB_ACTOR}"
 git -C "${REPO_DIR}" config user.email "${GITHUB_ACTOR}@users.noreply.${INPUT_ORGANIZATION_DOMAIN}"
+setup_commit_signing
 
 cd "${REPO_DIR}"
 
@@ -131,13 +255,6 @@ get_current_branch() {
     branch=""
   fi
   printf '%s' "${branch}"
-}
-
-input_true() {
-  case "${1:-}" in
-    true|TRUE|True|1|yes|YES|Yes|on|ON|On) return 0 ;;
-    *) return 1 ;;
-  esac
 }
 
 # Get changed files
