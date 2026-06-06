@@ -154,13 +154,12 @@ commandTests:
         echo "identity override" > /tmp/ws/e2e-identity.txt
         real_git="$(command -v git)"
         mkdir -p /tmp/fakebin
-        cat > /tmp/fakebin/git <<EOF
-        #!/bin/sh
-        if [ "\$1" = "push" ]; then
-          exit 0
-        fi
-        exec "${real_git}" "\$@"
-        EOF
+        printf '%s\n' \
+          '#!/bin/sh' \
+          'if [ "$1" = "push" ]; then' \
+          '  exit 0' \
+          'fi' \
+          "exec ${real_git} \"\$@\"" > /tmp/fakebin/git
         chmod +x /tmp/fakebin/git
         export PATH="/tmp/fakebin:${PATH}"
         export GITHUB_WORKSPACE=/tmp/ws
