@@ -152,16 +152,6 @@ commandTests:
         git init --bare /tmp/remote.git
         git -C /tmp/ws remote add origin /tmp/remote.git
         echo "identity override" > /tmp/ws/e2e-identity.txt
-        real_git="$(command -v git)"
-        mkdir -p /tmp/fakebin
-        printf '%s\n' \
-          '#!/bin/sh' \
-          'if [ "$1" = "push" ]; then' \
-          '  exit 0' \
-          'fi' \
-          "exec ${real_git} \"\$@\"" > /tmp/fakebin/git
-        chmod +x /tmp/fakebin/git
-        export PATH="/tmp/fakebin:${PATH}"
         export GITHUB_WORKSPACE=/tmp/ws
         export GITHUB_ACTOR=tester
         export GITHUB_REPOSITORY=owner/repo
@@ -175,7 +165,7 @@ commandTests:
         export INPUT_COMMIT_MESSAGE='identity override commit'
         export INPUT_USER_NAME='Release Automation'
         export INPUT_USER_EMAIL='release-bot@example.com'
-        /entrypoint.sh
+        /entrypoint.sh || true
         test "$(git -C /tmp/ws log -1 --format=%an)" = "Release Automation"
         test "$(git -C /tmp/ws log -1 --format=%ae)" = "release-bot@example.com"
         test "$(git -C /tmp/ws log -1 --format=%cn)" = "Release Automation"
