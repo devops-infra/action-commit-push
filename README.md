@@ -60,6 +60,8 @@ This action supports three tag levels for flexible versioning:
           amend: false
           commit_prefix: "[AUTO]"
           commit_message: "Automatic commit"
+          user_name: ""
+          user_email: ""
           signing_mode: ""
           signing_key: ""
           signing_passphrase: ""
@@ -79,6 +81,8 @@ This action supports three tag levels for flexible versioning:
 | `amend`                   | No       | `false`          | Whether to make an amendment to the previous commit (`--amend`). Can be combined with `commit_message` to change the commit message.                          |
 | `commit_prefix`           | No       | `""`             | Prefix added to commit message. Combines with `commit_message`.                                                                                               |
 | `commit_message`          | No       | `""`             | Commit message to set. Combines with `commit_prefix`. Can be used with `amend` to change the commit message.                                                  |
+| `user_name`               | No       | `""`             | Git `user.name` used for created commits. Defaults to `${{ github.actor }}` when empty.                                                                       |
+| `user_email`              | No       | `""`             | Git `user.email` used for created commits. Defaults to `${{ github.actor }}@users.noreply.<organization_domain>` when empty.                                 |
 | `signing_mode`            | No       | `""`             | Commit signing mode. Supported values are `gpg` and `ssh`. Leave empty to disable signing.                                                                    |
 | `signing_key`             | No       | `""`             | Signing key material. For `gpg`, provide an ASCII-armored private key export. For `ssh`, provide a private key in OpenSSH or PEM format.                     |
 | `signing_passphrase`      | No       | `""`             | Optional passphrase for the signing key. Passphrase-protected GPG keys are supported. Encrypted SSH signing keys are rejected in the current runtime.         |
@@ -221,6 +225,24 @@ jobs:
           repository_path: work/repo
           commit_message: "Update README"
 ```
+
+### 👤 Custom commit identity example
+Override the git author/committer identity used by the action.
+
+```yaml
+- name: Commit and push with custom identity
+  uses: devops-infra/action-commit-push@v1.4.0
+  with:
+    github_token: ${{ secrets.GITHUB_TOKEN }}
+    commit_message: "test(commit-push): custom identity"
+    user_name: "Release Automation"
+    user_email: "release-bot@example.com"
+```
+
+When `user_name` and `user_email` are empty, the action defaults to:
+
+- `user.name = ${{ github.actor }}`
+- `user.email = ${{ github.actor }}@users.noreply.<organization_domain>`
 
 ## 🔏 Commit Signing
 
