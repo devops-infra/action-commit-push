@@ -134,6 +134,42 @@ commandTests:
         git -C /tmp/ws config gpg.format ssh
         git -C /tmp/ws config gpg.ssh.allowedSignersFile /tmp/allowed_signers
         git -C /tmp/ws verify-commit HEAD
+
+  - name: Entrypoint overrides commit identity
+    command: bash
+    args:
+      - -lc
+      - |
+        set -euo pipefail
+        rm -rf /tmp/ws /tmp/remote.git /tmp/github_output.txt
+        mkdir -p /tmp/ws
+        git init /tmp/ws
+        git -C /tmp/ws config user.name test
+        git -C /tmp/ws config user.email test@example.com
+        touch /tmp/ws/.keep
+        git -C /tmp/ws add .
+        git -C /tmp/ws commit -m init
+        git init --bare /tmp/remote.git
+        git -C /tmp/ws remote add origin /tmp/remote.git
+        echo "identity override" > /tmp/ws/e2e-identity.txt
+        GITHUB_WORKSPACE=/tmp/ws \
+        GITHUB_ACTOR=tester \
+        GITHUB_REPOSITORY=owner/repo \
+        GITHUB_OUTPUT=/tmp/github_output.txt \
+        GITHUB_TOKEN=fake \
+        INPUT_ORGANIZATION_DOMAIN=github.com \
+        INPUT_REPOSITORY_PATH=. \
+        INPUT_AMEND=false \
+        INPUT_ALLOW_EMPTY_COMMIT=false \
+        INPUT_TARGET_BRANCH='' \
+        INPUT_COMMIT_MESSAGE='identity override commit' \
+        INPUT_USER_NAME='Release Automation' \
+        INPUT_USER_EMAIL='release-bot@example.com' \
+        /entrypoint.sh
+        test "$(git -C /tmp/ws log -1 --format=%an)" = "Release Automation"
+        test "$(git -C /tmp/ws log -1 --format=%ae)" = "release-bot@example.com"
+        test "$(git -C /tmp/ws log -1 --format=%cn)" = "Release Automation"
+        test "$(git -C /tmp/ws log -1 --format=%ce)" = "release-bot@example.com"
 fileExistenceTests:
   - name: entrypoint exists
     path: /entrypoint.sh

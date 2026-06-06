@@ -22,6 +22,14 @@ inputs:
     description: Commit message to set
     required: false
     default: ""
+  user_name:
+    description: Git user.name to use for created commits. Defaults to GITHUB_ACTOR when empty.
+    required: false
+    default: ""
+  user_email:
+    description: Git user.email to use for created commits. Defaults to GITHUB_ACTOR@users.noreply.<organization_domain> when empty.
+    required: false
+    default: ""
   signing_mode:
     description: Commit signing mode. Supported values are gpg and ssh.
     required: false

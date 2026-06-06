@@ -10,6 +10,8 @@ echo "  add_timestamp:           ${INPUT_ADD_TIMESTAMP}"
 echo "  amend:                   ${INPUT_AMEND}"
 echo "  commit_prefix:           ${INPUT_COMMIT_PREFIX}"
 echo "  commit_message:          ${INPUT_COMMIT_MESSAGE}"
+echo "  user_name:               ${INPUT_USER_NAME}"
+echo "  user_email:              ${INPUT_USER_EMAIL}"
 echo "  signing_mode:            ${INPUT_SIGNING_MODE}"
 echo "  force:                   ${INPUT_FORCE}"
 echo "  force_with_lease:        ${INPUT_FORCE_WITH_LEASE}"
@@ -242,8 +244,8 @@ echo "[INFO] Using repository path: ${REPO_DIR}"
 
 # Set git credentials
 git -C "${REPO_DIR}" remote set-url origin "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@${INPUT_ORGANIZATION_DOMAIN}/${GITHUB_REPOSITORY}"
-git -C "${REPO_DIR}" config user.name "${GITHUB_ACTOR}"
-git -C "${REPO_DIR}" config user.email "${GITHUB_ACTOR}@users.noreply.${INPUT_ORGANIZATION_DOMAIN}"
+git -C "${REPO_DIR}" config user.name "${INPUT_USER_NAME:-${GITHUB_ACTOR}}"
+git -C "${REPO_DIR}" config user.email "${INPUT_USER_EMAIL:-${GITHUB_ACTOR}@users.noreply.${INPUT_ORGANIZATION_DOMAIN}}"
 setup_commit_signing
 
 cd "${REPO_DIR}"
