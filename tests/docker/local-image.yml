@@ -153,7 +153,8 @@ commandTests:
         git -C /tmp/ws remote add origin /tmp/remote.git
         echo "identity override" > /tmp/ws/e2e-identity.txt
         set +e
-        if GITHUB_WORKSPACE=/tmp/ws \
+        rc=0
+        GITHUB_WORKSPACE=/tmp/ws \
           GITHUB_ACTOR=tester \
           GITHUB_REPOSITORY=owner/repo \
           GITHUB_OUTPUT=/tmp/github_output.txt \
@@ -166,11 +167,7 @@ commandTests:
           INPUT_COMMIT_MESSAGE='identity override commit' \
           INPUT_USER_NAME='Release Automation' \
           INPUT_USER_EMAIL='release-bot@example.com' \
-          /entrypoint.sh; then
-          rc=0
-        else
-          rc=$?
-        fi
+          /entrypoint.sh || rc=$?
         set -e
         test "$rc" -ne 0
         test "$(git -C /tmp/ws log -1 --format=%an)" = "Release Automation"
