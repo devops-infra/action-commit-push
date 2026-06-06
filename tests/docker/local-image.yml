@@ -152,22 +152,22 @@ commandTests:
         git init --bare /tmp/remote.git
         git -C /tmp/ws remote add origin /tmp/remote.git
         echo "identity override" > /tmp/ws/e2e-identity.txt
+        export GITHUB_WORKSPACE=/tmp/ws
+        export GITHUB_ACTOR=tester
+        export GITHUB_REPOSITORY=owner/repo
+        export GITHUB_OUTPUT=/tmp/github_output.txt
+        export GITHUB_TOKEN=fake
+        export INPUT_ORGANIZATION_DOMAIN=github.com
+        export INPUT_REPOSITORY_PATH=.
+        export INPUT_AMEND=false
+        export INPUT_ALLOW_EMPTY_COMMIT=false
+        export INPUT_TARGET_BRANCH=''
+        export INPUT_COMMIT_MESSAGE='identity override commit'
+        export INPUT_USER_NAME='Release Automation'
+        export INPUT_USER_EMAIL='release-bot@example.com'
         set +e
-        rc=0
-        GITHUB_WORKSPACE=/tmp/ws \
-          GITHUB_ACTOR=tester \
-          GITHUB_REPOSITORY=owner/repo \
-          GITHUB_OUTPUT=/tmp/github_output.txt \
-          GITHUB_TOKEN=fake \
-          INPUT_ORGANIZATION_DOMAIN=github.com \
-          INPUT_REPOSITORY_PATH=. \
-          INPUT_AMEND=false \
-          INPUT_ALLOW_EMPTY_COMMIT=false \
-          INPUT_TARGET_BRANCH='' \
-          INPUT_COMMIT_MESSAGE='identity override commit' \
-          INPUT_USER_NAME='Release Automation' \
-          INPUT_USER_EMAIL='release-bot@example.com' \
-          /entrypoint.sh || rc=$?
+        /entrypoint.sh
+        rc=$?
         set -e
         test "$rc" -ne 0
         test "$(git -C /tmp/ws log -1 --format=%an)" = "Release Automation"
