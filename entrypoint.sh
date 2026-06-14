@@ -5,6 +5,8 @@ set -eo pipefail
 # Return code
 RET_CODE=0
 
+INPUT_ORGANIZATION_DOMAIN="${INPUT_ORGANIZATION_DOMAIN:-github.com}"
+
 echo "Inputs:"
 echo "  add_timestamp:           ${INPUT_ADD_TIMESTAMP}"
 echo "  amend:                   ${INPUT_AMEND}"
